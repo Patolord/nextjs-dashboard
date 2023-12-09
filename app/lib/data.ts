@@ -7,6 +7,7 @@ import {
   LatestInvoiceRaw,
   User,
   Revenue,
+  ProjectsTable,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -236,31 +237,33 @@ export async function fetchFilteredObras(query: string, currentPage: number) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const invoices = await sql<InvoicesTable>`
+    const projects = await sql<ProjectsTable>`
       SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
+        projects.id,
+        projects.ref_id,
+        projects.name AS project_name,
+        projects.status,
+        projects.date_of_start,
+        projects.date_of_finish,
+        projects.assigned_to,
+        clients.name AS client_name,
+        clients.image_url
+      FROM projects
+      JOIN clients ON projects.client_id = clients.id
       WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
+        clients.name ILIKE ${`%${query}%`} OR
+        projects.name::text ILIKE ${`%${query}%`} OR
+        projects.date_of_start::text ILIKE ${`%${query}%`} OR
+        projects.ref_id::text ILIKE ${`%${query}%`} OR
+        projects.status ILIKE ${`%${query}%`}
+      ORDER BY projects.ref_id DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
 
-    return invoices.rows;
+    return projects.rows;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoices.');
+    throw new Error('Failed to fetch projects.');
   }
 }
 

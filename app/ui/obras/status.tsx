@@ -7,20 +7,27 @@ export default function ObraStatus({ status }: { status: string }) {
       className={clsx(
         'inline-flex items-center rounded-full px-2 py-1 text-xs',
         {
-          'bg-gray-100 text-gray-500': status === 'pending',
-          'bg-green-500 text-white': status === 'paid',
+          'bg-gray-100 text-gray-500': status === 'Planning',
+          'bg-blue-500 text-white': status === 'In Progress',
+          'bg-green-500 text-white': status === 'Completed',
         },
       )}
     >
-      {status === 'pending' ? (
+      {status === 'Planning' ? (
         <>
-          Pending
+          Planejamento
           <ClockIcon className="ml-1 w-4 text-gray-500" />
         </>
       ) : null}
-      {status === 'paid' ? (
+      {status === 'In Progress' ? (
         <>
-          Paid
+          Em Andamento
+          <ClockIcon className="ml-1 w-4 text-gray-500" />
+        </>
+      ) : null}
+      {status === 'Completed' ? (
+        <>
+          Completa
           <CheckIcon className="ml-1 w-4 text-white" />
         </>
       ) : null}

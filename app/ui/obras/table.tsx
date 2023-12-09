@@ -3,7 +3,7 @@ import ObraStatus from '@/app/ui/obras/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredObras } from '@/app/lib/data';
 
-export default async function InvoicesTable({
+export default async function ObrasTable({
   query,
   currentPage,
 }: {
@@ -25,26 +25,23 @@ export default async function InvoicesTable({
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <div className="mb-2 flex items-center">
-                      <p className="text-xl font-medium">{obra.name}</p>
+                      <p className="text-xl font-medium">{obra.project_name}</p>
                       <Image
                         src={obra.image_url}
                         className="mr-2 rounded-full"
                         width={28}
                         height={28}
-                        alt={`${obra.name}'s profile picture`}
+                        alt={`${obra.project_name}'s profile picture`}
                       />
-                      <p>{obra.name}</p>
+                      <p>{obra.client_name}</p>
                     </div>
-                    <p className="text-sm text-gray-500">{obra.email}</p>
+                    <p className="text-sm text-gray-500">{obra.client_id}</p>
                   </div>
                   <ObraStatus status={obra.status} />
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
-                    <p className="text-xl font-medium">
-                      {formatCurrency(obra.amount)}
-                    </p>
-                    <p>{formatDateToLocal(obra.date)}</p>
+                    <p>{formatDateToLocal(obra.date_of_start)}</p>
                   </div>
                 </div>
               </div>
@@ -54,16 +51,16 @@ export default async function InvoicesTable({
             <thead className="rounded-lg text-left text-sm font-normal">
               <tr>
                 <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                  Clientes
+                  Construtoras
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Email
+                  Nº de Obra
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Quantia
+                  Nome
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Data
+                  Data de Inicio
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Status
@@ -83,18 +80,21 @@ export default async function InvoicesTable({
                         className="rounded-full"
                         width={28}
                         height={28}
-                        alt={`${obra.name}'s profile picture`}
+                        alt={`${obra.client_name}'s profile picture`}
                       />
-                      <p>{obra.name}</p>
+                      <p>{obra.client_name}</p>
                     </div>
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3">{obra.email}</td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {formatCurrency(obra.amount)}
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    <p>{obra.ref_id}</p>
                   </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {formatDateToLocal(obra.date)}
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    <p>{obra.project_name}</p>
                   </td>
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                    <p>{formatDateToLocal(obra.date_of_start)}</p>
+                  </td>
+
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <ObraStatus status={obra.status} />
                   </td>

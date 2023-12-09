@@ -55,6 +55,26 @@ export type InvoicesTable = {
   status: 'pending' | 'paid';
 };
 
+export type ProjectsTable = {
+  id: string;
+  ref_id: number;
+  project_name: string;
+  client_id: string;
+  client_name: string;
+  status: 'Planning' | 'In Progress' | 'Completed';
+  date_of_start: string;
+  date_of_finish: string;
+  image_url: string;
+  assigned_to: string;
+};
+
+export type ClientsTable = {
+  id: string;
+  name: string;
+  email: string;
+  image_url: string;
+};
+
 export type CustomersTable = {
   id: string;
   name: string;
