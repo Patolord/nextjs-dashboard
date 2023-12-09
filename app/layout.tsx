@@ -1,5 +1,15 @@
 import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | RLP Dashboard',
+    default: 'RLP Dashboard',
+  },
+  description: 'RLP Dashboard',
+  robots: 'noindex, nofollow',
+};
 
 export default function RootLayout({
   children,
