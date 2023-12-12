@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   },
   description: 'RLP Dashboard',
   robots: 'noindex, nofollow',
+  metadataBase: new URL('https://app.rlpeng.com.br'),
 };
 
 export default function RootLayout({

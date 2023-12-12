@@ -8,6 +8,8 @@ import {
   User,
   Revenue,
   ProjectsTable,
+  ClientesTable,
+  ProjectView,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -292,25 +294,69 @@ export async function fetchObrasPages(query: string) {
 export async function fetchObraById(id: string) {
   noStore();
   try {
-    const data = await sql<InvoiceForm>`
+    const data = await sql<ProjectView>`
       SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
+        projects.id,
+        projects.ref_id,
+        projects.name
+      FROM projects
+      WHERE projects.id = ${id};
     `;
 
-    const invoice = data.rows.map((invoice) => ({
-      ...invoice,
-      // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
+    const project = data.rows.map((project) => ({
+      ...project,
     }));
 
-    return invoice[0];
+    return project[0];
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoice.');
+    throw new Error('Failed to fetch obra.');
+  }
+}
+
+export async function fetchClientesPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM clients    
+    WHERE
+      clients.name ILIKE ${`%${query}%`} OR
+      clients.email ILIKE ${`%${query}%`}    
+  `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of clients.');
+  }
+}
+
+export async function fetchFilteredClientes(
+  query: string,
+  currentPage: number,
+) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const clients = await sql<ClientesTable>`
+      SELECT
+        clients.id,
+        clients.name,
+        clients.email,
+        clients.image_url
+      FROM clients 
+      WHERE
+        clients.name ILIKE ${`%${query}%`} OR
+        clients.email::text ILIKE ${`%${query}%`}      
+      ORDER BY clients.name DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return clients.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch clients.');
   }
 }

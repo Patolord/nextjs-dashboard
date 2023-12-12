@@ -68,7 +68,7 @@ export type ProjectsTable = {
   assigned_to: string;
 };
 
-export type ClientsTable = {
+export type ClientesTable = {
   id: string;
   name: string;
   email: string;
@@ -105,4 +105,10 @@ export type InvoiceForm = {
   customer_id: string;
   amount: number;
   status: 'pending' | 'paid';
+};
+
+export type ProjectView = {
+  id: string;
+  ref_id: number;
+  name: string;
 };
