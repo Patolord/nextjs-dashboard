@@ -9,6 +9,7 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   disable: false,
   workboxOptions: {
     disableDevLogs: true,
+    mode: 'production',
   },
 });
 
