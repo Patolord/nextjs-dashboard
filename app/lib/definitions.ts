@@ -112,3 +112,13 @@ export type ProjectView = {
   ref_id: number;
   name: string;
 };
+
+export type OrcamentosTable = {
+  id: string;
+  ref_id: string;
+  name: string;
+  client_id: string;
+  client_name: string;
+  image_url: string;
+  status: 'Aprovado' | 'Enviado' | 'Em Andamento' | 'Cancelado';
+};

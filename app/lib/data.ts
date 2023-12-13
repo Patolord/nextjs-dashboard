@@ -10,6 +10,7 @@ import {
   ProjectsTable,
   ClientesTable,
   ProjectView,
+  OrcamentosTable,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -233,7 +234,7 @@ export async function getUser(email: string) {
   }
 }
 
-//new
+//Obras
 export async function fetchFilteredObras(query: string, currentPage: number) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -314,6 +315,7 @@ export async function fetchObraById(id: string) {
   }
 }
 
+//Clientes
 export async function fetchClientesPages(query: string) {
   noStore();
   try {
@@ -358,5 +360,84 @@ export async function fetchFilteredClientes(
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch clients.');
+  }
+}
+
+//Orcamentos
+export async function fetchFilteredOrcamentos(
+  query: string,
+  currentPage: number,
+) {
+  noStore();
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  try {
+    const orcamentos = await sql<OrcamentosTable>`
+      SELECT
+        orcamentos.id,
+        orcamentos.ref_id,
+        orcamentos.client_id,
+        orcamentos.name AS orcamento_name,
+        orcamentos.status,
+        clients.name AS client_name,
+        clients.image_url
+      FROM orcamentos
+      JOIN clients ON orcamentos.client_id = clients.id
+      WHERE
+        clients.name ILIKE ${`%${query}%`} OR
+        orcamentos.name::text ILIKE ${`%${query}%`} OR      
+        orcamentos.ref_id::text ILIKE ${`%${query}%`} OR
+        orcamentos.status ILIKE ${`%${query}%`}
+      ORDER BY orcamentos.ref_id DESC
+      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    `;
+
+    return orcamentos.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch orcamentos.');
+  }
+}
+
+export async function fetchOrcamentosPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM orcamentos
+    JOIN clients ON orcamentos.client_id = clients.id
+    WHERE
+      orcamentos.ref_id ILIKE ${`%${query}%`} OR
+      orcamentos.status ILIKE ${`%${query}%`} OR
+      clients.name::text ILIKE ${`%${query}%`}
+  `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of orcamentos.');
+  }
+}
+
+export async function fetchOrcamentoById(id: string) {
+  noStore();
+  try {
+    const data = await sql<OrcamentosTable>`
+      SELECT
+        orcamentos.id,
+        orcamentos.ref_id,
+        orcamentos.name
+      FROM orcamentos
+      WHERE orcamentos.id = ${id};
+    `;
+
+    const orcamento = data.rows.map((orcamento) => ({
+      ...orcamento,
+    }));
+
+    return orcamento[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch obra.');
   }
 }
