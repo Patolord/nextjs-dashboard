@@ -8,9 +8,9 @@ import {
   User,
   Revenue,
   ProjectsTable,
-  ClientesTable,
+  ClientsTable,
   ProjectView,
-  OrcamentosTable,
+  BudgetsTable,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -123,28 +123,6 @@ export async function fetchFilteredInvoices(
   }
 }
 
-export async function fetchInvoicesPages(query: string) {
-  noStore();
-  try {
-    const count = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
-    WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
-  `;
-
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
-    return totalPages;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of invoices.');
-  }
-}
-
 export async function fetchInvoiceById(id: string) {
   noStore();
   try {
@@ -235,7 +213,7 @@ export async function getUser(email: string) {
 }
 
 //Obras
-export async function fetchFilteredObras(query: string, currentPage: number) {
+export async function fetchFilteredProjects(query: string, currentPage: number) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
@@ -270,29 +248,7 @@ export async function fetchFilteredObras(query: string, currentPage: number) {
   }
 }
 
-export async function fetchObrasPages(query: string) {
-  noStore();
-  try {
-    const count = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
-    WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
-  `;
-
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
-    return totalPages;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of invoices.');
-  }
-}
-
-export async function fetchObraById(id: string) {
+export async function fetchProjectById(id: string) {
   noStore();
   try {
     const data = await sql<ProjectView>`
@@ -316,25 +272,7 @@ export async function fetchObraById(id: string) {
 }
 
 //Clientes
-export async function fetchClientesPages(query: string) {
-  noStore();
-  try {
-    const count = await sql`SELECT COUNT(*)
-    FROM clients    
-    WHERE
-      clients.name ILIKE ${`%${query}%`} OR
-      clients.email ILIKE ${`%${query}%`}    
-  `;
-
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
-    return totalPages;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of clients.');
-  }
-}
-
-export async function fetchFilteredClientes(
+export async function fetchFilteredClients(
   query: string,
   currentPage: number,
 ) {
@@ -342,7 +280,7 @@ export async function fetchFilteredClientes(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const clients = await sql<ClientesTable>`
+    const clients = await sql<ClientsTable>`
       SELECT
         clients.id,
         clients.name,
@@ -364,7 +302,7 @@ export async function fetchFilteredClientes(
 }
 
 //Orcamentos
-export async function fetchFilteredOrcamentos(
+export async function fetchFilteredBudgets(
   query: string,
   currentPage: number,
 ) {
@@ -372,42 +310,111 @@ export async function fetchFilteredOrcamentos(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const orcamentos = await sql<OrcamentosTable>`
+    const budgets = await sql<BudgetsTable>`
       SELECT
-        orcamentos.id,
-        orcamentos.ref_id,
-        orcamentos.client_id,
-        orcamentos.name AS orcamento_name,
-        orcamentos.status,
+        budgets.id,
+        budgets.ref_id,
+        budgets.client_id,
+        budgets.name AS budget_name,
+        budgets.status,
         clients.name AS client_name,
         clients.image_url
-      FROM orcamentos
-      JOIN clients ON orcamentos.client_id = clients.id
+      FROM budgets
+      JOIN clients ON budgets.client_id = clients.id
       WHERE
         clients.name ILIKE ${`%${query}%`} OR
-        orcamentos.name::text ILIKE ${`%${query}%`} OR      
-        orcamentos.ref_id::text ILIKE ${`%${query}%`} OR
-        orcamentos.status ILIKE ${`%${query}%`}
-      ORDER BY orcamentos.ref_id DESC
+        budgets.name::text ILIKE ${`%${query}%`} OR      
+        budgets.ref_id::text ILIKE ${`%${query}%`} OR
+        budgets.status ILIKE ${`%${query}%`}
+      ORDER BY budgets.ref_id DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
 
-    return orcamentos.rows;
+    return budgets.rows;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch orcamentos.');
+    throw new Error('Failed to fetch budgets.');
   }
 }
 
-export async function fetchOrcamentosPages(query: string) {
+
+
+export async function fetchBudgetById(id: string) {
+  noStore();
+  try {
+    const data = await sql<BudgetsTable>`
+      SELECT
+        budgets.id,
+        budgets.ref_id,
+        budgets.name
+      FROM budgets
+      WHERE budgets.id = ${id};
+    `;
+
+    const budget = data.rows.map((budget) => ({
+      ...budget,
+    }));
+
+    return budget[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch budget.');
+  }
+}
+
+
+//fetch pages (generalize this functions)
+export async function fetchInvoicesPages(query: string) {
   noStore();
   try {
     const count = await sql`SELECT COUNT(*)
-    FROM orcamentos
-    JOIN clients ON orcamentos.client_id = clients.id
+    FROM invoices
+    JOIN customers ON invoices.customer_id = customers.id
     WHERE
-      orcamentos.ref_id ILIKE ${`%${query}%`} OR
-      orcamentos.status ILIKE ${`%${query}%`} OR
+      customers.name ILIKE ${`%${query}%`} OR
+      customers.email ILIKE ${`%${query}%`} OR
+      invoices.amount::text ILIKE ${`%${query}%`} OR
+      invoices.date::text ILIKE ${`%${query}%`} OR
+      invoices.status ILIKE ${`%${query}%`}
+  `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of invoices.');
+  }
+}
+
+export async function fetchProjectsPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM projects
+    JOIN clients ON projects.client_id = clients.id
+    WHERE
+      clients.name ILIKE ${`%${query}%`} OR
+      clients.email ILIKE ${`%${query}%`} OR
+
+  `;
+
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch total number of invoices.');
+  }
+}
+
+export async function fetchBudgetsPages(query: string) {
+  noStore();
+  try {
+    const count = await sql`SELECT COUNT(*)
+    FROM budgets
+    JOIN clients ON budgets.client_id = clients.id
+    WHERE
+      budgets.ref_id ILIKE ${`%${query}%`} OR
+      budgets.status ILIKE ${`%${query}%`} OR
       clients.name::text ILIKE ${`%${query}%`}
   `;
 
@@ -415,29 +422,24 @@ export async function fetchOrcamentosPages(query: string) {
     return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of orcamentos.');
+    throw new Error('Failed to fetch total number of budgets.');
   }
 }
 
-export async function fetchOrcamentoById(id: string) {
+export async function fetchClientsPages(query: string) {
   noStore();
   try {
-    const data = await sql<OrcamentosTable>`
-      SELECT
-        orcamentos.id,
-        orcamentos.ref_id,
-        orcamentos.name
-      FROM orcamentos
-      WHERE orcamentos.id = ${id};
-    `;
+    const count = await sql`SELECT COUNT(*)
+    FROM clients    
+    WHERE
+      clients.name ILIKE ${`%${query}%`} OR
+      clients.email ILIKE ${`%${query}%`}    
+  `;
 
-    const orcamento = data.rows.map((orcamento) => ({
-      ...orcamento,
-    }));
-
-    return orcamento[0];
+    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch obra.');
+    throw new Error('Failed to fetch total number of clients.');
   }
 }

@@ -1,7 +1,7 @@
 import { PlusIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
-export function CreateCliente() {
+export function CreateClient() {
   return (
     <Link
       href="/dashboard/clientes/create"

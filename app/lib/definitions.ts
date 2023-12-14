@@ -68,9 +68,10 @@ export type ProjectsTable = {
   assigned_to: string;
 };
 
-export type ClientesTable = {
+export type ClientsTable = {
   id: string;
   name: string;
+  cnpj: string;
   email: string;
   image_url: string;
 };
@@ -113,7 +114,7 @@ export type ProjectView = {
   name: string;
 };
 
-export type OrcamentosTable = {
+export type BudgetsTable = {
   id: string;
   ref_id: string;
   name: string;

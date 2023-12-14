@@ -1,11 +1,11 @@
 import Pagination from '@/app/ui/pagination';
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/orcamentos/table';
-import { CreateOrcamento } from '@/app/ui/orcamentos/buttons';
+import { CreateBudget } from '@/app/ui/orcamentos/buttons';
 import { lusitana } from '@/app/ui/fonts';
-import { fetchOrcamentosPages } from '@/app/lib/data';
+import { fetchBudgetsPages } from '@/app/lib/data';
 import { Metadata } from 'next';
-import OrcamentosTable from '@/app/ui/orcamentos/table';
+import BudgetsTable from '@/app/ui/orcamentos/table';
 
 export const metadata: Metadata = {
   title: 'Orçamentos',
@@ -22,7 +22,7 @@ export default async function Page({
 }) {
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const totalPages = await fetchOrcamentosPages(query);
+  const totalPages = await fetchBudgetsPages(query);
 
   return (
     <div className="w-full">
@@ -31,10 +31,10 @@ export default async function Page({
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <Search placeholder="Buscar orçamentos..." />
-        <CreateOrcamento />
+        <CreateBudget />
       </div>
 
-      <OrcamentosTable query={query} currentPage={currentPage} />
+      <BudgetsTable query={query} currentPage={currentPage} />
 
       <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />

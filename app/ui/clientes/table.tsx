@@ -1,45 +1,45 @@
 import Image from 'next/image';
-import { fetchFilteredClientes } from '@/app/lib/data';
+import { fetchFilteredClients } from '@/app/lib/data';
 import Link from 'next/link';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 
-export default async function ClientesTable({
+export default async function ClientsTable({
   query,
   currentPage,
 }: {
   query: string;
   currentPage: number;
 }) {
-  const clientes = await fetchFilteredClientes(query, currentPage);
+  const clients = await fetchFilteredClients(query, currentPage);
 
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
-            {clientes?.map((cliente) => (
+            {clients?.map((client) => (
               <div
-                key={cliente.id}
+                key={client.id}
                 className="mb-2 w-full rounded-md bg-white p-4"
               >
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <div className="mb-2 flex items-center">
                       <Image
-                        src={cliente.image_url}
+                        src={client.image_url}
                         className="mr-2 rounded-full"
                         width={28}
                         height={28}
-                        alt={`${cliente.name} client picture`}
+                        alt={`${client.name} client picture`}
                       />
-                      {cliente.name}
+                      {client.name}
                     </div>
-                    <p className="text-sm text-gray-500">{cliente.email}</p>
+                    <p className="text-sm text-gray-500">{client.email}</p>
                   </div>
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div className="flex justify-end gap-2">
-                    <Link href={`/dashboard/obras/${cliente.id}`}>
+                    <Link href={`/dashboard/obras/${client.id}`}>
                       <Cog6ToothIcon className="w-6" />
                     </Link>
                   </div>
@@ -63,31 +63,31 @@ export default async function ClientesTable({
               </tr>
             </thead>
             <tbody className="bg-white">
-              {clientes?.map((cliente) => (
+              {clients?.map((client) => (
                 <tr
-                  key={cliente.id}
+                  key={client.id}
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                 >
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex items-center gap-3">
                       <Image
-                        src={cliente.image_url}
+                        src={client.image_url}
                         className="rounded-full"
                         width={28}
                         height={28}
-                        alt={`${cliente.name}'s profile picture`}
+                        alt={`${client.name}'s profile picture`}
                       />
-                      <p>{cliente.name}</p>
+                      <p>{client.name}</p>
                     </div>
                   </td>
 
                   <td className="whitespace-nowrap px-3 py-3">
-                    <p>{cliente.email}</p>
+                    <p>{client.email}</p>
                   </td>
 
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <Link href={`/dashboard/obras/${cliente.id}`}>
+                      <Link href={`/dashboard/obras/${client.id}`}>
                         <Cog6ToothIcon className="w-6" />
                       </Link>
                     </div>

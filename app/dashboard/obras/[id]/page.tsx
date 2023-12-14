@@ -1,4 +1,4 @@
-import { fetchObraById } from '@/app/lib/data';
+import { fetchProjectById } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 
 export default async function Page({ params }: { params: { id: string } }) {
   const id = params.id;
-  const [obra] = await Promise.all([fetchObraById(id)]);
+  const [project] = await Promise.all([fetchProjectById(id)]);
 
-  if (!obra) {
+  if (!project) {
     notFound();
   }
-  return <main>{obra.name}</main>;
+  return <main>{project.name}</main>;
 }

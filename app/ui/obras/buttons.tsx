@@ -1,7 +1,7 @@
 import { PlusIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
-export function CreateObra() {
+export function CreateProject() {
   return (
     <Link
       href="/dashboard/obras/create"

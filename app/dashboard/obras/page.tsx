@@ -1,11 +1,11 @@
 import Pagination from '@/app/ui/pagination';
 import Search from '@/app/ui/search';
 import Table from '@/app/ui/obras/table';
-import { CreateObra } from '@/app/ui/obras/buttons';
+import { CreateProject } from '@/app/ui/obras/buttons';
 import { lusitana } from '@/app/ui/fonts';
-import { fetchObrasPages } from '@/app/lib/data';
+import { fetchProjectsPages } from '@/app/lib/data';
 import { Metadata } from 'next';
-import ObrasTable from '@/app/ui/obras/table';
+import ProjectsTable from '@/app/ui/obras/table';
 
 export const metadata: Metadata = {
   title: 'Obras',
@@ -22,7 +22,7 @@ export default async function Page({
 }) {
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const totalPages = await fetchObrasPages(query);
+  const totalPages = await fetchProjectsPages(query);
 
   return (
     <div className="w-full">
@@ -31,10 +31,10 @@ export default async function Page({
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <Search placeholder="Buscar obras..." />
-        <CreateObra />
+        <CreateProject />
       </div>
 
-      <ObrasTable query={query} currentPage={currentPage} />
+      <ProjectsTable query={query} currentPage={currentPage} />
 
       <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />

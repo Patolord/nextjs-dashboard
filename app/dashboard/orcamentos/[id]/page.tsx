@@ -1,18 +1,18 @@
-import { fetchObraById } from '@/app/lib/data';
+import { fetchBudgetById } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Ver Obra',
-  description: 'Ver Obra',
+  title: 'Ver Orçamento',
+  description: 'Ver Orçamento',
 };
 
 export default async function Page({ params }: { params: { id: string } }) {
   const id = params.id;
-  const [obra] = await Promise.all([fetchObraById(id)]);
+  const [budget] = await Promise.all([fetchBudgetById(id)]);
 
-  if (!obra) {
+  if (!budget) {
     notFound();
   }
-  return <main>{obra.name}</main>;
+  return <main>{budget.name}</main>;
 }
