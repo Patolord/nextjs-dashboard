@@ -12,6 +12,7 @@ import {
   ProjectView,
   OrcamentosTable,
   ClientsField,
+  MateriaisField
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -459,5 +460,28 @@ export async function fetchOrcamentoById(id: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch obra.');
+  }
+}
+
+
+//materiais
+export async function fetchMateriais() {
+  noStore();
+  try {
+    const data = await sql<MateriaisField>`
+      SELECT
+        id,
+        name,
+        unit,
+        value
+      FROM materiais
+      ORDER BY id ASC
+    `;
+
+    const materiais = data.rows;
+    return materiais;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch all materiais.');
   }
 }

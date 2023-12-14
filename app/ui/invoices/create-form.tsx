@@ -32,7 +32,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               defaultValue=""
               aria-describedby="customer-error"
             >
-              <option value="" disabled>
+              <option value="" disabled>+
                 Select a customer
               </option>
               {customers.map((customer) => (

@@ -100,6 +100,13 @@ export type CustomerField = {
   name: string;
 };
 
+export type MateriaisField = {
+  id: string;
+  name: string;
+  unit: string;
+  value: number;
+};
+
 export type ClientsField = {
   id: string;
   name: string;
