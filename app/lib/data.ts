@@ -222,23 +222,15 @@ export async function fetchFilteredProjects(query: string, currentPage: number) 
   try {
     const projects = await sql<ProjectsTable>`
       SELECT
-        projects.id,
+        projects.projectid,
         projects.ref_id,
-        projects.name AS project_name,
-        projects.status,
-        projects.date_of_start,
-        projects.date_of_finish,
-        projects.assigned_to,
-        clients.name AS client_name,
-        clients.image_url
+        projects.startdate,
+        projects.enddate,  
+        budgets.budgetname AS budget_name       
       FROM projects
-      JOIN clients ON projects.client_id = clients.id
+      JOIN budgets ON projects.budgetid = budgets.budgetid
       WHERE
-        clients.name ILIKE ${`%${query}%`} OR
-        projects.name::text ILIKE ${`%${query}%`} OR
-        projects.date_of_start::text ILIKE ${`%${query}%`} OR
-        projects.ref_id::text ILIKE ${`%${query}%`} OR
-        projects.status ILIKE ${`%${query}%`}
+        budgets.budgetname ILIKE ${`%${query}%`}        
       ORDER BY projects.ref_id DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
@@ -255,11 +247,11 @@ export async function fetchProjectById(id: string) {
   try {
     const data = await sql<ProjectView>`
       SELECT
-        projects.id,
+        projects.projectid,
         projects.ref_id,
         projects.name
       FROM projects
-      WHERE projects.id = ${id};
+      WHERE projects.projectid = ${id};
     `;
 
     const project = data.rows.map((project) => ({
@@ -328,26 +320,25 @@ export async function fetchFilteredBudgets(
   currentPage: number,
 ) {
   noStore();
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE; 
 
   try {
     const budgets = await sql<BudgetsTable>`
       SELECT
-        budgets.id,
-        budgets.ref_id,
-        budgets.client_id,
-        budgets.name AS budget_name,
-        budgets.status,
+        budgets.budgetid,
+        budgets.refid,
+        budgets.clientid,
+        budgets.budgetname AS budget_name,
+        budgets.approvalstatus,
         clients.name AS client_name,
         clients.image_url
       FROM budgets
-      JOIN clients ON budgets.client_id = clients.id
+      JOIN clients ON budgets.clientid = clients.id
       WHERE
         clients.name ILIKE ${`%${query}%`} OR
-        budgets.name::text ILIKE ${`%${query}%`} OR      
-        budgets.ref_id::text ILIKE ${`%${query}%`} OR
-        budgets.status ILIKE ${`%${query}%`}
-      ORDER BY budgets.ref_id DESC
+        budgets.budgetname::text ILIKE ${`%${query}%`} OR      
+        budgets.refid::text ILIKE ${`%${query}%`}
+      ORDER BY budgets.refid DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
 
@@ -412,11 +403,9 @@ export async function fetchProjectsPages(query: string) {
   try {
     const count = await sql`SELECT COUNT(*)
     FROM projects
-    JOIN clients ON projects.client_id = clients.id
+    JOIN budgets ON projects.budgetid = budgets.budgetid
     WHERE
-      clients.name ILIKE ${`%${query}%`} OR
-      clients.email ILIKE ${`%${query}%`} OR
-
+      budgets.budgetname ILIKE ${`%${query}%`}
   `;
 
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
@@ -432,10 +421,9 @@ export async function fetchBudgetsPages(query: string) {
   try {
     const count = await sql`SELECT COUNT(*)
     FROM budgets
-    JOIN clients ON budgets.client_id = clients.id
+    JOIN clients ON budgets.clientid = clients.id
     WHERE
-      budgets.ref_id ILIKE ${`%${query}%`} OR
-      budgets.status ILIKE ${`%${query}%`} OR
+      budgets.refid ILIKE ${`%${query}%`} OR  
       clients.name::text ILIKE ${`%${query}%`}
   `;
 
@@ -476,7 +464,7 @@ export async function fetchMateriais() {
         name,
         unit,
         value
-      FROM materiais
+      FROM materials
       ORDER BY id ASC
     `;
 

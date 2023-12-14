@@ -129,9 +129,9 @@ export type ProjectView = {
 
 export type BudgetsTable = {
   id: string;
-  ref_id: string;
+  refid: string;
   name: string;
-  client_id: string;
+  clientid: string;
   client_name: string;
   image_url: string;
   status: 'Aprovado' | 'Enviado' | 'Em Andamento' | 'Cancelado';

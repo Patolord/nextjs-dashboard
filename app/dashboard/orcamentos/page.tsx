@@ -1,6 +1,5 @@
 import Pagination from '@/app/ui/pagination';
 import Search from '@/app/ui/search';
-import Table from '@/app/ui/orcamentos/table';
 import { CreateBudget } from '@/app/ui/orcamentos/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { fetchBudgetsPages } from '@/app/lib/data';

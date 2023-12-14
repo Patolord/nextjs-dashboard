@@ -17,7 +17,7 @@ const nextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: [process.env.ALLOWED_ORIGIN, 'localhost:3000'],
-      allowedForwardedHosts: [process.env.ALLOWED_ORIGIN],
+      allowedForwardedHosts: [process.env.ALLOWED_ORIGIN, '127.0.0.1:3000'],
     },
   },
 };
