@@ -11,6 +11,7 @@ import {
   ClientesTable,
   ProjectView,
   OrcamentosTable,
+  ClientsField,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -360,6 +361,25 @@ export async function fetchFilteredClientes(
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch clients.');
+  }
+}
+
+export async function fetchClientes() {
+  noStore();
+  try {
+    const data = await sql<ClientsField>`
+      SELECT
+        id,
+        name
+      FROM clients
+      ORDER BY name ASC
+    `;
+
+    const clients = data.rows;
+    return clients;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch all clients.');
   }
 }
 

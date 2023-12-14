@@ -100,6 +100,12 @@ export type CustomerField = {
   name: string;
 };
 
+export type ClientsField = {
+  id: string;
+  name: string;
+};
+
+
 export type InvoiceForm = {
   id: string;
   customer_id: string;
@@ -116,7 +122,7 @@ export type ProjectView = {
 export type OrcamentosTable = {
   id: string;
   ref_id: string;
-  name: string;
+  orcamento_name: string;
   client_id: string;
   client_name: string;
   image_url: string;

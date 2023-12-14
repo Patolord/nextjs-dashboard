@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import OrcamentoStatus from '@/app/ui/obras/status';
+import OrcamentoStatus from '@/app/ui/orcamentos/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredOrcamentos } from '@/app/lib/data';
 import Link from 'next/link';
@@ -39,6 +39,9 @@ export default async function OrcamentosTable({
                       {orcamento.client_name}
                     </p>
                   </div>
+                  <p className="text-sm text-gray-500">
+                      {orcamento.orcamento_name}
+                    </p>
                   <OrcamentoStatus status={orcamento.status} />
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
@@ -86,17 +89,18 @@ export default async function OrcamentosTable({
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex items-center gap-3">
                       <Image
-                        src=""
+                        src={orcamento.image_url}
                         className="rounded-full"
                         width={28}
                         height={28}
-                        alt={`'s profile picture`}
+                        alt={`${orcamento.client_name} 's profile picture`}
                       />
+                      <p>{orcamento.client_name}</p>
                     </div>
                   </td>
 
                   <td className="whitespace-nowrap px-3 py-3">
-                    <p>{orcamento.name}</p>
+                    <p>{orcamento.orcamento_name}</p>
                   </td>
 
                   <td className="whitespace-nowrap px-3 py-3">
