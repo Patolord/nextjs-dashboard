@@ -7,12 +7,12 @@ import {
   LatestInvoiceRaw,
   User,
   Revenue,
-  ProjectsTable,
   ClientsTable,
   ProjectView,
-  BudgetsTable,
   ClientsField,
   MaterialsField,
+  ProjectsTableView,
+  BudgetsTableView
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -220,17 +220,20 @@ export async function fetchFilteredProjects(query: string, currentPage: number) 
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const projects = await sql<ProjectsTable>`
+    const projects = await sql<ProjectsTableView>`
       SELECT
-        projects.projectid,
+        projects.id,
+        projects.name,
         projects.ref_id,
-        projects.startdate,
-        projects.enddate,  
-        budgets.budgetname AS budget_name       
+        projects.start_date,
+        projects.end_date,  
+        budgets.name AS budget_name,
+        clients.image_url
       FROM projects
-      JOIN budgets ON projects.budgetid = budgets.budgetid
+      JOIN budgets ON projects.budget_id = budgets.id  -- Assuming projects.budgetid links to budgets.id
+      JOIN clients ON budgets.client_id = clients.id  -- Assuming budgets.clientid links to clients.id
       WHERE
-        budgets.budgetname ILIKE ${`%${query}%`}        
+        budgets.name ILIKE ${`%${query}%`}
       ORDER BY projects.ref_id DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
@@ -247,11 +250,11 @@ export async function fetchProjectById(id: string) {
   try {
     const data = await sql<ProjectView>`
       SELECT
-        projects.projectid,
+        projects.id,
         projects.ref_id,
         projects.name
       FROM projects
-      WHERE projects.projectid = ${id};
+      WHERE projects.id = ${id};
     `;
 
     const project = data.rows.map((project) => ({
@@ -323,22 +326,22 @@ export async function fetchFilteredBudgets(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE; 
 
   try {
-    const budgets = await sql<BudgetsTable>`
+    const budgets = await sql<BudgetsTableView>`
       SELECT
-        budgets.budgetid,
-        budgets.refid,
-        budgets.clientid,
-        budgets.budgetname AS budget_name,
-        budgets.approvalstatus,
+        budgets.id,
+        budgets.ref_id,
+        budgets.client_id,
+        budgets.name,
+        budgets.status,
         clients.name AS client_name,
         clients.image_url
       FROM budgets
-      JOIN clients ON budgets.clientid = clients.id
+      JOIN clients ON budgets.id = clients.id
       WHERE
         clients.name ILIKE ${`%${query}%`} OR
-        budgets.budgetname::text ILIKE ${`%${query}%`} OR      
-        budgets.refid::text ILIKE ${`%${query}%`}
-      ORDER BY budgets.refid DESC
+        budgets.name::text ILIKE ${`%${query}%`} OR      
+        budgets.ref_id::text ILIKE ${`%${query}%`}
+      ORDER BY budgets.ref_id DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `;
 
@@ -354,7 +357,7 @@ export async function fetchFilteredBudgets(
 export async function fetchBudgetById(id: string) {
   noStore();
   try {
-    const data = await sql<BudgetsTable>`
+    const data = await sql<BudgetsTableView>`
       SELECT
         budgets.id,
         budgets.ref_id,
@@ -403,9 +406,9 @@ export async function fetchProjectsPages(query: string) {
   try {
     const count = await sql`SELECT COUNT(*)
     FROM projects
-    JOIN budgets ON projects.budgetid = budgets.budgetid
+    JOIN budgets ON projects.id = budgets.id
     WHERE
-      budgets.budgetname ILIKE ${`%${query}%`}
+      budgets.name ILIKE ${`%${query}%`}
   `;
 
     const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
@@ -421,9 +424,9 @@ export async function fetchBudgetsPages(query: string) {
   try {
     const count = await sql`SELECT COUNT(*)
     FROM budgets
-    JOIN clients ON budgets.clientid = clients.id
+    JOIN clients ON budgets.id = clients.id
     WHERE
-      budgets.refid ILIKE ${`%${query}%`} OR  
+      budgets.ref_id ILIKE ${`%${query}%`} OR  
       clients.name::text ILIKE ${`%${query}%`}
   `;
 
@@ -455,7 +458,7 @@ export async function fetchClientsPages(query: string) {
 
 
 //materiais
-export async function fetchMateriais() {
+export async function fetchMaterials() {
   noStore();
   try {
     const data = await sql<MaterialsField>`

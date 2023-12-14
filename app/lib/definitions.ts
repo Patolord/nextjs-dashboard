@@ -55,27 +55,6 @@ export type InvoicesTable = {
   status: 'pending' | 'paid';
 };
 
-export type ProjectsTable = {
-  id: string;
-  ref_id: number;
-  project_name: string;
-  client_id: string;
-  client_name: string;
-  status: 'Planning' | 'In Progress' | 'Completed';
-  date_of_start: string;
-  date_of_finish: string;
-  image_url: string;
-  assigned_to: string;
-};
-
-export type ClientsTable = {
-  id: string;
-  name: string;
-  cnpj: string;
-  email: string;
-  image_url: string;
-};
-
 export type CustomersTable = {
   id: string;
   name: string;
@@ -127,12 +106,76 @@ export type ProjectView = {
   name: string;
 };
 
+
+//types from DB
+
 export type BudgetsTable = {
-  id: string;
-  refid: string;
+  id: number;
+  ref_id: string;
+  client_id: string;
   name: string;
-  clientid: string;
+  totalcost: number;
+  status: 'Aprovado' | 'Enviado' | 'Em Andamento' | 'Cancelado';
+  date_created: string;
+  
+};
+
+export type BudgetsTableView = {
+  id: number;
+  ref_id: string;
+  image_url: string;
+  client_id: string;
+  client_name: string;
+  name: string;
+  totalcost: number;
+  status: 'Aprovado' | 'Enviado' | 'Em Andamento' | 'Cancelado';
+  date_created: string;
+  
+};
+
+export type MaterialsTable = {
+  id: number;
+  name: string;
+  unit: string;
+  value: number;
+}
+
+export type ClientsTable = {
+  id: number;
+  name: string;
+  cnpj: string;
+  email: string;
+  image_url: string;
+};
+
+export type ProjectsTable = {
+  id: number;
+  ref_id: number;
+  start_date: string;
+  end_date: string;
+  budget_id: number;
+  name: string;
+  assigned_to: string;
+};
+
+export type ProjectsTableView = {
+  id: number;
+  ref_id: number;
+  name: string;
+  assigned_to: string;
+  client_id: number
+  start_date: string;
+  status: 'Aprovado' | 'Enviado' | 'Em Andamento' | 'Cancelado';
   client_name: string;
   image_url: string;
-  status: 'Aprovado' | 'Enviado' | 'Em Andamento' | 'Cancelado';
 };
+
+
+export type BudgetMaterialsTable = {
+  materials_id: number;
+  budgets_id: number;
+  name: string;
+  quantity: number;
+  cost: number;
+};
+

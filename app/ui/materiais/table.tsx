@@ -1,12 +1,12 @@
 import Image from 'next/image';
 import ObraStatus from '@/app/ui/obras/status';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
-import { fetchMateriais } from '@/app/lib/data';
+import { fetchMaterials } from '@/app/lib/data';
 import Link from 'next/link';
 import { FolderOpenIcon } from '@heroicons/react/24/outline';
 
 export default async function MateriaisTable() {
-  const materiais = await fetchMateriais();
+  const materiais = await fetchMaterials();
 
   return (
     <div className="mt-6 flow-root">

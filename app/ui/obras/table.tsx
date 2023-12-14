@@ -34,15 +34,15 @@ export default async function ProjectsTable({
                         height={28}
                         alt={`${project.client_name} client picture`}
                       />
-                      {project.project_name}
+                      {project.name}
                     </div>
-                    <p className="text-sm text-gray-500">{project.client_name}</p>
+                    <p className="text-sm text-gray-500">{project.name}</p>
                   </div>
                   <ProjectStatus status={project.status} />
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
-                    <p>{formatDateToLocal(project.date_of_start)}</p>
+                    <p>{formatDateToLocal(project.start_date)}</p>
                   </div>
                   <div className="flex justify-end gap-2">
                     <Link href={`/dashboard/obras/${project.id}`}>
@@ -105,10 +105,10 @@ export default async function ProjectsTable({
                   </td>
 
                   <td className="whitespace-nowrap px-3 py-3">
-                    <p>{project.project_name}</p>
+                    <p>{project.name}</p>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    <p>{formatDateToLocal(project.date_of_start)}</p>
+                    <p>{formatDateToLocal(project.start_date)}</p>
                   </td>
 
                   <td className="whitespace-nowrap px-3 py-3">
