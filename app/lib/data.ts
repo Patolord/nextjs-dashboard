@@ -11,6 +11,8 @@ import {
   ClientsTable,
   ProjectView,
   BudgetsTable,
+  ClientsField,
+  MaterialsField,
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -468,7 +470,7 @@ export async function fetchClientsPages(query: string) {
 export async function fetchMateriais() {
   noStore();
   try {
-    const data = await sql<MateriaisField>`
+    const data = await sql<MaterialsField>`
       SELECT
         id,
         name,

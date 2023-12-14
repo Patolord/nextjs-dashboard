@@ -101,7 +101,7 @@ export type CustomerField = {
   name: string;
 };
 
-export type MateriaisField = {
+export type MaterialsField = {
   id: string;
   name: string;
   unit: string;
@@ -130,7 +130,7 @@ export type ProjectView = {
 export type BudgetsTable = {
   id: string;
   ref_id: string;
-  orcamento_name: string;
+  name: string;
   client_id: string;
   client_name: string;
   image_url: string;
