@@ -8,27 +8,34 @@ export default function BudgetStatus({ status }: { status: string }) {
       className={clsx(
         'inline-flex items-center rounded-full px-2 py-1 text-xs',
         {
-          'bg-gray-100 text-gray-500': status === 'Planning',
-          'bg-blue-500 text-white': status === 'In Progress',
-          'bg-green-500 text-white': status === 'Completed',
+          'bg-gray-100 text-gray-500': status === 'Cancelado',
+          'bg-yellow-500 text-white': status === 'Em Andamento',
+          'bg-blue-500 text-white': status === 'Enviado',
+          'bg-green-500 text-white': status === 'Aprovado',
         },
       )}
     >
-      {status === 'Planning' ? (
+      {status === 'Cancelado' ? (
         <>
-          Planejamento
+          Cancelado
           <ClockIcon className="ml-1 w-4 text-gray-500" />
         </>
       ) : null}
-      {status === 'In Progress' ? (
+      {status === 'Em Andamento' ? (
         <>
           Em Andamento
           <ClockIcon className="ml-1 w-4 text-gray-500" />
         </>
       ) : null}
-      {status === 'Completed' ? (
+      {status === 'Enviado' ? (
         <>
-          Completa
+          Enviado
+          <ClockIcon className="ml-1 w-4 text-gray-500" />
+        </>
+      ) : null}
+      {status === 'Aprovado' ? (
+        <>
+          Aprovado
           <CheckIcon className="ml-1 w-4 text-white" />
         </>
       ) : null}

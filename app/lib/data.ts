@@ -301,6 +301,25 @@ export async function fetchFilteredClients(
   }
 }
 
+export async function fetchClientes() {
+  noStore();
+  try {
+    const data = await sql<ClientsField>`
+      SELECT
+        id,
+        name
+      FROM clients
+      ORDER BY name ASC
+    `;
+
+    const clients = data.rows;
+    return clients;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch all clients.');
+  }
+}
+
 //Orcamentos
 export async function fetchFilteredBudgets(
   query: string,
@@ -441,5 +460,28 @@ export async function fetchClientsPages(query: string) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch total number of clients.');
+  }
+}
+
+
+//materiais
+export async function fetchMateriais() {
+  noStore();
+  try {
+    const data = await sql<MateriaisField>`
+      SELECT
+        id,
+        name,
+        unit,
+        value
+      FROM materiais
+      ORDER BY id ASC
+    `;
+
+    const materiais = data.rows;
+    return materiais;
+  } catch (err) {
+    console.error('Database Error:', err);
+    throw new Error('Failed to fetch all materiais.');
   }
 }

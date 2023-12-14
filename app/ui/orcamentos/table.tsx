@@ -86,12 +86,13 @@ export default async function BudgetsTable({
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex items-center gap-3">
                       <Image
-                        src=""
+                        src={orcamento.image_url}
                         className="rounded-full"
                         width={28}
                         height={28}
-                        alt={`'s profile picture`}
+                        alt={`${orcamento.client_name} 's profile picture`}
                       />
+                      <p>{orcamento.client_name}</p>
                     </div>
                   </td>
 
