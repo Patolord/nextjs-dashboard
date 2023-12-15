@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model budgetmaterials {
+  materials_id Int
+  budgets_id   Int
+  name         String    @db.VarChar(255)
+  quantity     Int
+  cost         Decimal   @db.Decimal(10, 2)
+  id           Int       @id @default(autoincrement())
+  budgets      budgets   @relation(fields: [budgets_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "budgetmaterials_budgetid_fkey")
+  materials    materials @relation(fields: [materials_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "budgetmaterials_materialsid_fkey")
+}
+
+model budgets {
+  id              Int               @id @default(autoincrement())
+  ref_id          String?           @db.VarChar(50)
+  client_id       Int
+  name            String            @db.VarChar(255)
+  totalcost       Decimal?          @db.Decimal(10, 2)
+  status          BudgetStatus      @default(INICIADO)
+  date_created    DateTime?         @db.Date
+  budgetmaterials budgetmaterials[]
+  clients         clients           @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "budgets_clientid_fkey")
+  projects        projects[]
+}
+
+model clients {
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(255)
+  cnpj      String    @db.VarChar(20)
+  email     String    @db.VarChar(255)
+  image_url String?   @db.VarChar(255)
+  budgets   budgets[]
+}
+
+model customers {
+  id        String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name      String @db.VarChar(255)
+  email     String @db.VarChar(255)
+  image_url String @db.VarChar(255)
+}
+
+model invoices {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  customer_id String   @db.Uuid
+  amount      Int
+  status      String   @db.VarChar(255)
+  date        DateTime @db.Date
+}
+
+model materials {
+  id               Int                @id @default(autoincrement())
+  name             String             @db.VarChar(255)
+  unit             String             @db.VarChar(50)
+  value            Decimal            @db.Decimal(10, 2)
+  budgetmaterials  budgetmaterials[]
+  projectmaterials projectmaterials[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model projectmaterials {
+  materialsid  Int
+  projectid    Int
+  materialname String    @db.VarChar(255)
+  quantity     Int
+  usedquantity Int
+  cost         Decimal   @db.Decimal(10, 2)
+  id           Int       @id @default(autoincrement())
+  materials    materials @relation(fields: [materialsid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  projects     projects  @relation(fields: [projectid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model projects {
+  id               Int                @id @default(autoincrement())
+  ref_id           String?            @db.VarChar(50)
+  start_date       DateTime?          @db.Date
+  end_date         DateTime?          @db.Date
+  budget_id        Int?
+  name             String?            @db.VarChar(255)
+  assigned_to      String?            @db.VarChar(255)
+  projectmaterials projectmaterials[]
+  budgets          budgets?           @relation(fields: [budget_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "projects_budgetid_fkey")
+}
+
+model revenue {
+  month   String @unique @db.VarChar(4)
+  revenue Int
+}
+
+model users {
+  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name     String @db.VarChar(255)
+  email    String @unique
+  password String
+}
+
+enum BudgetStatus {
+  INICIADO
+  ENVIADO
+  APROVADO
+}
