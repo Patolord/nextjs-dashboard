@@ -7,10 +7,22 @@ import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
+
 export type State = {
   errors?: {
     customerId?: string[];
     amount?: string[];
+    status?: string[];
+  };
+  message?: string | null;
+};
+
+export type State2 = {
+  errors?: {
+    client_id?: string[];
+    estimated_cost?: string[];
     status?: string[];
   };
   message?: string | null;
@@ -24,24 +36,25 @@ const FormSchema = z.object({
   date: z.string(),
 });
 
-const FormSchema2 = z.object({
-  id: z.string(),
-  customerId: z.string({
+const QuoteFormSchema = z.object({
+  id: z.number(),
+  client_id: z.number({
     invalid_type_error: 'Please select a customer.',
-  }),
-  amount: z.coerce
-    .number()
-    .gt(0, { message: 'Please enter an amount greater than 0.' }),
+  }), 
   name: z.string({
     invalid_type_error: 'Please select a name...',
   }),
   date: z.string(),
+  ref_id: z.string(),
+  estimated_cost: z.number({
+    invalid_type_error: 'Please select cost',
+  }), 
 });
 
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
-const CreateInvoice2 = FormSchema2.omit({ id: true, date: true });
-const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
+const CreateQuote = QuoteFormSchema.omit({ id: true, date: true });
+
+/*
 export async function createInvoice(prevState: State, formData: FormData) {
   const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get('customerId'),
@@ -57,14 +70,19 @@ export async function createInvoice(prevState: State, formData: FormData) {
   }
   const { customerId, amount, status } = validatedFields.data;
   const amountInCents = amount * 100;
-  const date = new Date().toISOString().split('T')[0];
+  const date = new Date().toISOString()
 
   try {
-    await sql`
-  INSERT INTO invoices (customer_id, amount, status, date)
-  VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-`;
+    await prisma.invoices.create({
+      data: {
+        customer_id: customerId,
+        amount: amountInCents,
+        status,
+        date,
+      },
+    });
   } catch (error) {
+
     return { message: 'Database Error: Failed to Create Invoice.' };
   }
   revalidatePath('/dashboard/invoices');
@@ -93,11 +111,14 @@ export async function updateInvoice(
   const amountInCents = amount * 100;
 
   try {
-    await sql`
-    UPDATE invoices
-    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-    WHERE id = ${id}
-  `;
+    await prisma.invoices.update({
+      where: { id },
+      data: {
+        customer_id: customerId,
+        amount: amountInCents,
+        status,
+      },
+    });
   } catch (error) {
     return { message: 'Database Error: Failed to Update Invoice.' };
   }
@@ -115,6 +136,7 @@ export async function deleteInvoice(id: string) {
     return { message: 'Database Error: Failed to Delete Invoice.' };
   }
 }
+ */
 
 export async function authenticate(
   prevState: string | undefined,
@@ -138,29 +160,37 @@ export async function authenticate(
 
 //orcarmento
 
-export async function createOrcamento(prevState: State, formData: FormData) {
-  const validatedFields = CreateInvoice2.safeParse({
-    customerId: formData.get('customerId'),
-    amount: formData.get('amount'),
-    name: formData.get('name')
-
+export async function createQuote(prevState: State2, formData: FormData) {
+  const validatedFields = CreateQuote.safeParse({
+    client_id: Number(formData.get('client_id')),
+    ref_id: formData.get('ref_id'),
+    name: formData.get('name'),
+    estimated_cost: Number(formData.get('estimated_cost')),
   });
 
   if (!validatedFields.success) {
+    console.log(validatedFields.error); // Check the error object for more details
     return {
+      
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Missing Fields. Failed to Create Invoice.',
     };
   }
-  const { customerId, amount, name } = validatedFields.data; 
-  const date = new Date().toISOString().split('T')[0];
+  const { client_id, ref_id, name, estimated_cost } = validatedFields.data; 
+  const date = new Date().toISOString()
   const status = 'Em Andamento';
 
   try {
-    await sql`
-  INSERT INTO orcamentos (client_id, ref_id, name, date, status)
-  VALUES (${customerId}, ${amount}, ${name}, ${date}, ${status})
-`;
+    await prisma.quotes.create({
+      data: {
+        client_id: client_id,
+        ref_id: ref_id,
+        name: name,
+        start_date: date,
+        status: status,
+        estimated_cost: estimated_cost
+      }
+    });
   } catch (error) {
     return { message: 'Database Error: Failed to Create Orcamento.' };
   }

@@ -1,0 +1,142 @@
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Clients {
+  id        Int        @id @default(autoincrement()) @unique
+  name      String
+  cnpj      String
+  image_url String @default("/clients/1.png")
+  quotes    Quotes[]
+  projects  Projects[]
+  contracts Contracts[]
+
+}
+
+model Quotes {
+  id              Int              @id @default(autoincrement()) @unique
+  client_id       Int
+  ref_id          String @unique
+  name            String
+  estimated_cost  Int
+  start_date      DateTime
+  status          String
+  quote_materials Quote_Material[]
+  Client          Clients          @relation(fields: [client_id], references: [id])
+
+
+
+
+  @@index([client_id])
+}
+
+model Projects {
+  id                Int                @id @default(autoincrement()) @unique
+  client_id         Int
+  ref_id            String @unique
+  name              String
+  start_date        DateTime
+  end_date          DateTime
+  status            String
+  project_materials Project_Material[]
+  Client            Clients            @relation(fields: [client_id], references: [id])
+
+
+  @@index([client_id])
+}
+
+model Contracts {
+  id             Int      @id @default(autoincrement()) @unique
+  client_id      Int
+  project_id     Int
+  quote_id       Int
+  ref_id         String @unique
+  name           String
+  contract_value Int
+  start_date     DateTime
+  end_date       DateTime
+  status         String
+  Client         Clients?  @relation(fields: [client_id], references: [id])
+
+
+  @@index([client_id])
+}
+
+model Materials {
+  id                Int                @id @default(autoincrement()) @unique
+  name              String
+  description       String
+  unit              String
+  category          String
+  prices            Prices[]
+  quote_materials   Quote_Material[]
+  project_materials Project_Material[]
+}
+
+model Suppliers {
+  id           Int     @id @default(autoincrement()) @unique
+  name         String
+  contact_info String
+  prices       Prices[]
+}
+
+model Prices {
+  id                Int                @id @default(autoincrement()) @unique
+  material_id       Int
+  supplier_id       Int
+  price             Decimal
+  effective_date    DateTime
+  quote_materials   Quote_Material[]
+  project_materials Project_Material[]
+  Material          Materials?          @relation(fields: [material_id], references: [id])
+
+  Supplier          Suppliers?          @relation(fields: [supplier_id], references: [id])
+
+
+  @@index([material_id])
+  @@index([supplier_id])
+}
+
+model Quote_Material {
+  quote_id    Int
+  material_id Int
+  quantity    Int
+  price_id    Int
+  Quote       Quotes?    @relation(fields: [quote_id], references: [id])
+  Material    Materials? @relation(fields: [material_id], references: [id])
+  Price       Prices?    @relation(fields: [price_id], references: [id])
+
+
+  @@unique([quote_id, material_id])
+  @@index([quote_id])
+  @@index([material_id])
+  @@index([price_id])
+}
+
+model Project_Material {
+  project_id  Int
+  material_id Int
+  quantity    Int
+  price_id    Int
+  Project     Projects?  @relation(fields: [project_id], references: [id])
+  Material    Materials? @relation(fields: [material_id], references: [id])
+  Price       Prices?    @relation(fields: [price_id], references: [id])
+
+  @@unique([project_id, material_id])
+  @@index([project_id])
+  @@index([material_id])
+  @@index([price_id])
+}
+
+model Users {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+}

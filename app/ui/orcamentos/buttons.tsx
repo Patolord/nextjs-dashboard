@@ -1,7 +1,7 @@
 import { PlusIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
-export function CreateBudget() {
+export function CreateQuote() {
   return (
     <Link
       href="/dashboard/orcamentos/create"

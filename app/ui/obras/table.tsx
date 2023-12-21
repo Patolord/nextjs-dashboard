@@ -42,7 +42,7 @@ export default async function ProjectsTable({
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
-                    <p>{formatDateToLocal(project.start_date)}</p>
+                    <p>{project.start_date.toLocaleString()}</p>
                   </div>
                   <div className="flex justify-end gap-2">
                     <Link href={`/dashboard/obras/${project.id}`}>
@@ -108,7 +108,7 @@ export default async function ProjectsTable({
                     <p>{project.name}</p>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    <p>{formatDateToLocal(project.start_date)}</p>
+                    <p>{project.start_date.toLocaleString()}</p>
                   </td>
 
                   <td className="whitespace-nowrap px-3 py-3">
