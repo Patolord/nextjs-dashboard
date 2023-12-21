@@ -1,4 +1,4 @@
-import {User} from './definitions';
+import {User,} from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
 
@@ -81,7 +81,11 @@ export async function fetchFilteredProjects(query: string, currentPage: number) 
         name: true,
         ref_id: true,
         start_date: true,
-        end_date: true,   
+        end_date: true,
+        status: true,
+        Client: { 
+          select: { name: true, image_url: true } 
+        }
       },
       where: {  
             name: {
@@ -95,7 +99,11 @@ export async function fetchFilteredProjects(query: string, currentPage: number) 
       skip: offset
     });
 
-    return projects;
+    return projects.map(project => ({
+      ...project,
+      client_name: project.Client?.name, // Adds client name to each quote
+      image_url: project.Client?.image_url // Adds client name to each quote
+    }));
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch projects.');
