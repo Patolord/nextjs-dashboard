@@ -1,4 +1,4 @@
-import { fetchBudgetById } from '@/app/lib/data';
+import { fetchQuoteById } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
@@ -7,12 +7,12 @@ export const metadata: Metadata = {
   description: 'Ver Orçamento',
 };
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({ params }: { params: { id: number } }) {
   const id = params.id;
-  const [budget] = await Promise.all([fetchBudgetById(id)]);
+  const [quote] = await Promise.all([fetchQuoteById(id)]);
 
-  if (!budget) {
+  if (!quote) {
     notFound();
   }
-  return <main>{budget.name}</main>;
+  return <main>{quote.name}</main>;
 }
