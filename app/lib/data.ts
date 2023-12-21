@@ -1,4 +1,3 @@
-import { sql } from '@vercel/postgres';
 import {
   CustomerField,
   CustomersTable,
@@ -17,6 +16,24 @@ import {
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
 
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
+async function main() {
+  const allUsers = await prisma.user.findMany();
+  console.log(allUsers);
+  
+}
+
+main()
+  .catch(e => {
+    throw e;
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
+
+ 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
   // This is equivalent to in fetch(..., {cache: 'no-store'}).
@@ -352,8 +369,6 @@ export async function fetchFilteredBudgets(
   }
 }
 
-
-
 export async function fetchBudgetById(id: string) {
   noStore();
   try {
@@ -376,7 +391,6 @@ export async function fetchBudgetById(id: string) {
     throw new Error('Failed to fetch budget.');
   }
 }
-
 
 //fetch pages (generalize this functions)
 export async function fetchInvoicesPages(query: string) {
@@ -455,8 +469,6 @@ export async function fetchClientsPages(query: string) {
     throw new Error('Failed to fetch total number of clients.');
   }
 }
-
-
 //materiais
 export async function fetchMaterials() {
   noStore();
@@ -478,3 +490,4 @@ export async function fetchMaterials() {
     throw new Error('Failed to fetch all materiais.');
   }
 }
+

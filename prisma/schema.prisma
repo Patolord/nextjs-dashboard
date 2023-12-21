@@ -1,110 +1,147 @@
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+model Client {
+  id        Int        @id @default(autoincrement())
+  name      String
+  cnpj      String
+  quotes    Quote[]
+  projects  Project[]
+  contracts Contract[]
+
+
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model budgetmaterials {
-  materials_id Int
-  budgets_id   Int
-  name         String    @db.VarChar(255)
-  quantity     Int
-  cost         Decimal   @db.Decimal(10, 2)
-  id           Int       @id @default(autoincrement())
-  budgets      budgets   @relation(fields: [budgets_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "budgetmaterials_budgetid_fkey")
-  materials    materials @relation(fields: [materials_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "budgetmaterials_materialsid_fkey")
-}
-
-model budgets {
-  id              Int               @id @default(autoincrement())
-  ref_id          String?           @db.VarChar(50)
+model Quote {
+  id              Int              @id @default(autoincrement())
   client_id       Int
-  name            String            @db.VarChar(255)
-  totalcost       Decimal?          @db.Decimal(10, 2)
-  status          BudgetStatus      @default(INICIADO)
-  date_created    DateTime?         @db.Date
-  budgetmaterials budgetmaterials[]
-  clients         clients           @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "budgets_clientid_fkey")
-  projects        projects[]
+  ref_id          Int
+  name            String
+  estimated_cost  Int
+  start_date      DateTime
+  status          String
+  quote_materials Quote_Material[]
+  Client          Client?          @relation(fields: [clientId], references: [id])
+  clientId        Int?
+
+
+
+  @@index([clientId])
 }
 
-model clients {
-  id        Int       @id @default(autoincrement())
-  name      String    @db.VarChar(255)
-  cnpj      String    @db.VarChar(20)
-  email     String    @db.VarChar(255)
-  image_url String?   @db.VarChar(255)
-  budgets   budgets[]
+model Project {
+  id                Int                @id @default(autoincrement())
+  client_id         Int
+  ref_id            Int
+  name              String
+  start_date        DateTime
+  end_date          DateTime
+  status            String
+  project_materials Project_Material[]
+  Client            Client?            @relation(fields: [clientId], references: [id])
+  clientId          Int?
+
+  @@index([clientId])
 }
 
-model customers {
-  id        String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name      String @db.VarChar(255)
-  email     String @db.VarChar(255)
-  image_url String @db.VarChar(255)
+model Contract {
+  id             Int      @id @default(autoincrement())
+  client_id      Int
+  project_id     Int
+  quote_id       Int
+  ref_id         Int
+  name           String
+  contract_value Int
+  start_date     DateTime
+  end_date       DateTime
+  status         String
+  Client         Client?  @relation(fields: [clientId], references: [id])
+  clientId       Int?
+
+  @@index([clientId])
 }
 
-model invoices {
-  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  customer_id String   @db.Uuid
-  amount      Int
-  status      String   @db.VarChar(255)
-  date        DateTime @db.Date
+model Material {
+  id                Int                @id @default(autoincrement())
+  name              String
+  description       String
+  unit              String
+  category          String
+  prices            Price[]
+  quote_materials   Quote_Material[]
+  project_materials Project_Material[]
 }
 
-model materials {
-  id               Int                @id @default(autoincrement())
-  name             String             @db.VarChar(255)
-  unit             String             @db.VarChar(50)
-  value            Decimal            @db.Decimal(10, 2)
-  budgetmaterials  budgetmaterials[]
-  projectmaterials projectmaterials[]
+model Supplier {
+  id           Int     @id @default(autoincrement())
+  name         String
+  contact_info String
+  prices       Price[]
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model projectmaterials {
-  materialsid  Int
-  projectid    Int
-  materialname String    @db.VarChar(255)
-  quantity     Int
-  usedquantity Int
-  cost         Decimal   @db.Decimal(10, 2)
-  id           Int       @id @default(autoincrement())
-  materials    materials @relation(fields: [materialsid], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  projects     projects  @relation(fields: [projectid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model Price {
+  id                Int                @id @default(autoincrement())
+  material_id       Int
+  supplier_id       Int
+  price             Decimal
+  effective_date    DateTime
+  quote_materials   Quote_Material[]
+  project_materials Project_Material[]
+  Material          Material?          @relation(fields: [materialId], references: [id])
+  materialId        Int?
+  Supplier          Supplier?          @relation(fields: [supplierId], references: [id])
+  supplierId        Int?
+
+  @@index([materialId])
+  @@index([supplierId])
 }
 
-model projects {
-  id               Int                @id @default(autoincrement())
-  ref_id           String?            @db.VarChar(50)
-  start_date       DateTime?          @db.Date
-  end_date         DateTime?          @db.Date
-  budget_id        Int?
-  name             String?            @db.VarChar(255)
-  assigned_to      String?            @db.VarChar(255)
-  projectmaterials projectmaterials[]
-  budgets          budgets?           @relation(fields: [budget_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "projects_budgetid_fkey")
+model Quote_Material {
+  quote_id    Int
+  material_id Int
+  quantity    Int
+  price_id    Int
+  Quote       Quote?    @relation(fields: [quoteId], references: [id])
+  quoteId     Int?
+  Material    Material? @relation(fields: [materialId], references: [id])
+  materialId  Int?
+  Price       Price?    @relation(fields: [priceId], references: [id])
+  priceId     Int?
+
+  @@unique([quote_id, material_id])
+  @@index([quoteId])
+  @@index([materialId])
+  @@index([priceId])
 }
 
-model revenue {
-  month   String @unique @db.VarChar(4)
-  revenue Int
+model Project_Material {
+  project_id  Int
+  material_id Int
+  quantity    Int
+  price_id    Int
+  Project     Project?  @relation(fields: [projectId], references: [id])
+  projectId   Int?
+  Material    Material? @relation(fields: [materialId], references: [id])
+  materialId  Int?
+  Price       Price?    @relation(fields: [priceId], references: [id])
+  priceId     Int?
+
+  @@unique([project_id, material_id])
+  @@index([projectId])
+  @@index([materialId])
+  @@index([priceId])
 }
 
-model users {
-  id       String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name     String @db.VarChar(255)
+model User {
+  id       String @id @default(uuid())
+  name     String
   email    String @unique
   password String
-}
-
-enum BudgetStatus {
-  INICIADO
-  ENVIADO
-  APROVADO
 }
