@@ -23,7 +23,7 @@ export default async function MateriaisTable() {
                     <div className="mb-2 flex items-center">                      
                     ID: {material.id} | {material.name}
                     </div>
-                    <p className="text-sm text-gray-500"> R${material.value}| {material.unit}</p>
+                    <p className="text-sm text-gray-500"> {material.description} | {material.unit}</p>
                   </div>                  
                 </div>
          
@@ -37,19 +37,19 @@ export default async function MateriaisTable() {
                   scope="col"
                   className="whitespace-nowrap px-4 py-5 font-medium sm:pl-6"
                 >
-                  Nº
+                  ID
                 </th>
                 <th scope="col" className="px-5 py-5 font-medium">
-                  Nomae
+                  Nome
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  unidade
+                  Unidade
                 </th>
                 <th
                   scope="col"
                   className="whitespace-nowrap px-3 py-5 font-medium"
                 >
-                  Valor
+                  Descricão
                 </th>
                
             
@@ -75,7 +75,7 @@ export default async function MateriaisTable() {
                     <p>{material.unit}</p>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    <p>{material.value}</p>
+                    <p>{material.description}</p>
                   </td>
                   
                 

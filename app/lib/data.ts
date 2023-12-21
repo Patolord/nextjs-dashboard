@@ -286,29 +286,42 @@ export async function fetchProjectById(id: string) {
 }
 
 //Clientes
-export async function fetchFilteredClients(
-  query: string,
-  currentPage: number,
-) {
+export async function fetchFilteredClients(query: string, currentPage: number) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const clients = await sql<ClientsTable>`
-      SELECT
-        clients.id,
-        clients.name,
-        clients.email,
-        clients.image_url
-      FROM clients 
-      WHERE
-        clients.name ILIKE ${`%${query}%`} OR
-        clients.email::text ILIKE ${`%${query}%`}      
-      ORDER BY clients.name DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
+    const clients = await prisma.client.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: query,
+              // mode: 'insensitive' can be added if your Prisma version supports it
+            },
+          },
+          {
+            cnpj: {
+              contains: query,
+              // mode: 'insensitive' can be added if your Prisma version supports it
+            },
+          },
+        ],
+      },
+      orderBy: {
+        name: 'desc',
+      },
+      take: ITEMS_PER_PAGE,
+      skip: offset,
+      select: {
+        id: true,
+        name: true,
+        cnpj: true,
+        //imageUrl: true, // Replace 'imageUrl' with the actual field name in your Client model
+      },
+    });
 
-    return clients.rows;
+    return clients;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch clients.');
@@ -455,35 +468,39 @@ export async function fetchBudgetsPages(query: string) {
 export async function fetchClientsPages(query: string) {
   noStore();
   try {
-    const count = await sql`SELECT COUNT(*)
-    FROM clients    
-    WHERE
-      clients.name ILIKE ${`%${query}%`} OR
-      clients.email ILIKE ${`%${query}%`}    
-  `;
+    const count = await prisma.client.count({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: query,         
+            },
+          },
+          {
+            cnpj: {
+              contains: query,       
+            },
+          },
+        ],
+      },
+    });
 
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of clients.');
+    throw new Error('Failed to fetch total number of client pages.');
   }
 }
 //materiais
 export async function fetchMaterials() {
   noStore();
   try {
-    const data = await sql<MaterialsField>`
-      SELECT
-        id,
-        name,
-        unit,
-        value
-      FROM materials
-      ORDER BY id ASC
-    `;
-
-    const materiais = data.rows;
+    const materiais = await prisma.material.findMany({
+      orderBy: {
+        id: 'asc',
+      },
+    });
     return materiais;
   } catch (err) {
     console.error('Database Error:', err);
