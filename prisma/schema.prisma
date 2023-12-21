@@ -8,99 +8,99 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Client {
-  id        Int        @id @default(autoincrement())
+model Clients {
+  id        Int        @id @default(autoincrement()) @unique
   name      String
   cnpj      String
-  quotes    Quote[]
-  projects  Project[]
-  contracts Contract[]
-
+  image_url String @default("/clients/1.png")
+  quotes    Quotes[]
+  projects  Projects[]
+  contracts Contracts[]
 
 }
 
-model Quote {
-  id              Int              @id @default(autoincrement())
+model Quotes {
+  id              Int              @id @default(autoincrement()) @unique
   client_id       Int
-  ref_id          Int
+  ref_id          String @unique
   name            String
   estimated_cost  Int
   start_date      DateTime
   status          String
   quote_materials Quote_Material[]
-  Client          Client?          @relation(fields: [clientId], references: [id])
-  clientId        Int?
+  Client          Clients          @relation(fields: [client_id], references: [id])
 
 
 
-  @@index([clientId])
+
+  @@index([client_id])
 }
 
-model Project {
-  id                Int                @id @default(autoincrement())
+model Projects {
+  id                Int                @id @default(autoincrement()) @unique
   client_id         Int
-  ref_id            Int
+  ref_id            String @unique
   name              String
   start_date        DateTime
   end_date          DateTime
   status            String
   project_materials Project_Material[]
-  Client            Client?            @relation(fields: [clientId], references: [id])
-  clientId          Int?
+  Client            Clients            @relation(fields: [client_id], references: [id])
 
-  @@index([clientId])
+
+  @@index([client_id])
 }
 
-model Contract {
-  id             Int      @id @default(autoincrement())
+model Contracts {
+  id             Int      @id @default(autoincrement()) @unique
   client_id      Int
   project_id     Int
   quote_id       Int
-  ref_id         Int
+  ref_id         String @unique
   name           String
   contract_value Int
   start_date     DateTime
   end_date       DateTime
   status         String
-  Client         Client?  @relation(fields: [clientId], references: [id])
-  clientId       Int?
+  Client         Clients?  @relation(fields: [client_id], references: [id])
 
-  @@index([clientId])
+
+  @@index([client_id])
 }
 
-model Material {
-  id                Int                @id @default(autoincrement())
+model Materials {
+  id                Int                @id @default(autoincrement()) @unique
   name              String
   description       String
   unit              String
   category          String
-  prices            Price[]
+  prices            Prices[]
   quote_materials   Quote_Material[]
   project_materials Project_Material[]
 }
 
-model Supplier {
-  id           Int     @id @default(autoincrement())
+model Suppliers {
+  id           Int     @id @default(autoincrement()) @unique
   name         String
   contact_info String
-  prices       Price[]
+  prices       Prices[]
 }
 
-model Price {
-  id                Int                @id @default(autoincrement())
+model Prices {
+  id                Int                @id @default(autoincrement()) @unique
   material_id       Int
   supplier_id       Int
   price             Decimal
   effective_date    DateTime
   quote_materials   Quote_Material[]
   project_materials Project_Material[]
-  Material          Material?          @relation(fields: [materialId], references: [id])
-  materialId        Int?
-  Supplier          Supplier?          @relation(fields: [supplierId], references: [id])
-  supplierId        Int?
+  Material          Materials?          @relation(fields: [material_id], references: [id])
 
-  @@index([materialId])
-  @@index([supplierId])
+  Supplier          Suppliers?          @relation(fields: [supplier_id], references: [id])
+
+
+  @@index([material_id])
+  @@index([supplier_id])
 }
 
 model Quote_Material {
@@ -108,17 +108,15 @@ model Quote_Material {
   material_id Int
   quantity    Int
   price_id    Int
-  Quote       Quote?    @relation(fields: [quoteId], references: [id])
-  quoteId     Int?
-  Material    Material? @relation(fields: [materialId], references: [id])
-  materialId  Int?
-  Price       Price?    @relation(fields: [priceId], references: [id])
-  priceId     Int?
+  Quote       Quotes?    @relation(fields: [quote_id], references: [id])
+  Material    Materials? @relation(fields: [material_id], references: [id])
+  Price       Prices?    @relation(fields: [price_id], references: [id])
+
 
   @@unique([quote_id, material_id])
-  @@index([quoteId])
-  @@index([materialId])
-  @@index([priceId])
+  @@index([quote_id])
+  @@index([material_id])
+  @@index([price_id])
 }
 
 model Project_Material {
@@ -126,20 +124,17 @@ model Project_Material {
   material_id Int
   quantity    Int
   price_id    Int
-  Project     Project?  @relation(fields: [projectId], references: [id])
-  projectId   Int?
-  Material    Material? @relation(fields: [materialId], references: [id])
-  materialId  Int?
-  Price       Price?    @relation(fields: [priceId], references: [id])
-  priceId     Int?
+  Project     Projects?  @relation(fields: [project_id], references: [id])
+  Material    Materials? @relation(fields: [material_id], references: [id])
+  Price       Prices?    @relation(fields: [price_id], references: [id])
 
   @@unique([project_id, material_id])
-  @@index([projectId])
-  @@index([materialId])
-  @@index([priceId])
+  @@index([project_id])
+  @@index([material_id])
+  @@index([price_id])
 }
 
-model User {
+model Users {
   id       String @id @default(uuid())
   name     String
   email    String @unique

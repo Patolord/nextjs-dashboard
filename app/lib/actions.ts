@@ -19,6 +19,15 @@ export type State = {
   message?: string | null;
 };
 
+export type State2 = {
+  errors?: {
+    client_id?: number[];
+    estimated_cost?: string[];
+    status?: string[];
+  };
+  message?: string | null;
+};
+
 const FormSchema = z.object({
   id: z.string(),
   customerId: z.string(),
@@ -27,7 +36,7 @@ const FormSchema = z.object({
   date: z.string(),
 });
 
-const BudgetFormSchema = z.object({
+const QuoteFormSchema = z.object({
   id: z.number(),
   client_id: z.number({
     invalid_type_error: 'Please select a customer.',
@@ -37,12 +46,15 @@ const BudgetFormSchema = z.object({
   }),
   date: z.string(),
   ref_id: z.string(),
+  estimated_cost: z.number({
+    invalid_type_error: 'Please select cost',
+  }), 
 });
 
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
-const CreateBudget = BudgetFormSchema.omit({ id: true, date: true });
-const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
+const CreateQuote = QuoteFormSchema.omit({ id: true, date: true });
+
+/*
 export async function createInvoice(prevState: State, formData: FormData) {
   const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get('customerId'),
@@ -124,6 +136,7 @@ export async function deleteInvoice(id: string) {
     return { message: 'Database Error: Failed to Delete Invoice.' };
   }
 }
+ */
 
 export async function authenticate(
   prevState: string | undefined,
@@ -147,13 +160,16 @@ export async function authenticate(
 
 //orcarmento
 
-export async function createBudget(prevState: State, formData: FormData) {
-  const validatedFields = CreateBudget.safeParse({
-    client_id: formData.get('client_id'),
+export async function createQuote(prevState: State2, formData: FormData) {
+  const validatedFields = CreateQuote.safeParse({
+    client_id: Number(formData.get('client_id')),
     ref_id: formData.get('ref_id'),
-    name: formData.get('name')
-
+    name: formData.get('name'),
+    estimated_cost: Number(formData.get('estimated_cost')),
   });
+
+  console.log(validatedFields.success); // Check if the parsing was successful
+  console.log(validatedFields.error); // Check the error object for more details
 
   if (!validatedFields.success) {
     return {
@@ -161,18 +177,19 @@ export async function createBudget(prevState: State, formData: FormData) {
       message: 'Missing Fields. Failed to Create Invoice.',
     };
   }
-  const { client_id, ref_id, name } = validatedFields.data; 
+  const { client_id, ref_id, name, estimated_cost } = validatedFields.data; 
   const date = new Date().toISOString()
   const status = 'Em Andamento';
 
   try {
-    await prisma.budgets.create({
+    await prisma.quotes.create({
       data: {
         client_id: client_id,
         ref_id: ref_id,
         name: name,
-        date: date,
-        status: status
+        start_date: date,
+        status: status,
+        estimated_cost: estimated_cost
       }
     });
   } catch (error) {

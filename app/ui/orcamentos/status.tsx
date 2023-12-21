@@ -2,7 +2,7 @@ import { CheckIcon, ClockIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
 //FIX THIS
-export default function BudgetStatus({ status }: { status: string }) {
+export default function QuoteStatus({ status }: { status: string }) {
   return (
     <span
       className={clsx(

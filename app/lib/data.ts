@@ -20,9 +20,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  const allUsers = await prisma.user.findMany();
-  console.log(allUsers);
-  
 }
 
 main()
@@ -33,42 +30,8 @@ main()
     await prisma.$disconnect();
   });
 
- 
-export async function fetchRevenue() {
-  // Add noStore() here prevent the response from being cached.
-  // This is equivalent to in fetch(..., {cache: 'no-store'}).
-  noStore();
 
-  try {
-    const data = await sql<Revenue>`SELECT * FROM revenue`;
-    return data.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch revenue data.');
-  }
-}
-
-export async function fetchLatestInvoices() {
-  noStore();
-  try {
-    const data = await sql<LatestInvoiceRaw>`
-      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      ORDER BY invoices.date DESC
-      LIMIT 5`;
-
-    const latestInvoices = data.rows.map((invoice) => ({
-      ...invoice,
-      amount: formatCurrency(invoice.amount),
-    }));
-    return latestInvoices;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch the latest invoices.');
-  }
-}
-
+/*
 export async function fetchCardData() {
   noStore();
   try {
@@ -103,128 +66,17 @@ export async function fetchCardData() {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch card data.');
   }
-}
+} */
 
 const ITEMS_PER_PAGE = 6;
-export async function fetchFilteredInvoices(
-  query: string,
-  currentPage: number,
-) {
-  noStore();
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-
-  try {
-    const invoices = await sql<InvoicesTable>`
-      SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
-
-    return invoices.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoices.');
-  }
-}
-
-export async function fetchInvoiceById(id: string) {
-  noStore();
-  try {
-    const data = await sql<InvoiceForm>`
-      SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
-    `;
-
-    const invoice = data.rows.map((invoice) => ({
-      ...invoice,
-      // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
-    }));
-
-    return invoice[0];
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoice.');
-  }
-}
-
-export async function fetchCustomers() {
-  noStore();
-  try {
-    const data = await sql<CustomerField>`
-      SELECT
-        id,
-        name
-      FROM customers
-      ORDER BY name ASC
-    `;
-
-    const customers = data.rows;
-    return customers;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch all customers.');
-  }
-}
-
-export async function fetchFilteredCustomers(query: string) {
-  noStore();
-  try {
-    const data = await sql<CustomersTable>`
-		SELECT
-		  customers.id,
-		  customers.name,
-		  customers.email,
-		  customers.image_url,
-		  COUNT(invoices.id) AS total_invoices,
-		  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
-		  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
-		FROM customers
-		LEFT JOIN invoices ON customers.id = invoices.customer_id
-		WHERE
-		  customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`}
-		GROUP BY customers.id, customers.name, customers.email, customers.image_url
-		ORDER BY customers.name ASC
-	  `;
-
-    const customers = data.rows.map((customer) => ({
-      ...customer,
-      total_pending: formatCurrency(customer.total_pending),
-      total_paid: formatCurrency(customer.total_paid),
-    }));
-
-    return customers;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch customer table.');
-  }
-}
-
 export async function getUser(email: string) {
   try {
-    const user = await sql`SELECT * FROM users WHERE email=${email}`;
-    return user.rows[0] as User;
+    const user = await prisma.users.findFirst({
+      where: {
+        email: email
+      }
+    });
+    return user as User;
   } catch (error) {
     console.error('Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');
@@ -237,48 +89,48 @@ export async function fetchFilteredProjects(query: string, currentPage: number) 
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const projects = await sql<ProjectsTableView>`
-      SELECT
-        projects.id,
-        projects.name,
-        projects.ref_id,
-        projects.start_date,
-        projects.end_date,  
-        budgets.name AS budget_name,
-        clients.image_url
-      FROM projects
-      JOIN budgets ON projects.budget_id = budgets.id  -- Assuming projects.budgetid links to budgets.id
-      JOIN clients ON budgets.client_id = clients.id  -- Assuming budgets.clientid links to clients.id
-      WHERE
-        budgets.name ILIKE ${`%${query}%`}
-      ORDER BY projects.ref_id DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
+    const projects = await prisma.projects.findMany({
+      select: {
+        id: true,
+        name: true,
+        ref_id: true,
+        start_date: true,
+        end_date: true,   
+      },
+      where: {  
+            name: {
+              contains: query
+            }
+          },
+      orderBy: {
+        ref_id: 'desc'
+      },
+      take: ITEMS_PER_PAGE,
+      skip: offset
+    });
 
-    return projects.rows;
+    return projects;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch projects.');
   }
 }
 
-export async function fetchProjectById(id: string) {
+export async function fetchProjectById(id: number) {
   noStore();
   try {
-    const data = await sql<ProjectView>`
-      SELECT
-        projects.id,
-        projects.ref_id,
-        projects.name
-      FROM projects
-      WHERE projects.id = ${id};
-    `;
+    const project = await prisma.projects.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        id: true,
+        ref_id: true,
+        name: true,
+      },
+    });
 
-    const project = data.rows.map((project) => ({
-      ...project,
-    }));
-
-    return project[0];
+    return project;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch obra.');
@@ -291,7 +143,7 @@ export async function fetchFilteredClients(query: string, currentPage: number) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const clients = await prisma.client.findMany({
+    const clients = await prisma.clients.findMany({
       where: {
         OR: [
           {
@@ -317,7 +169,7 @@ export async function fetchFilteredClients(query: string, currentPage: number) {
         id: true,
         name: true,
         cnpj: true,
-        //imageUrl: true, // Replace 'imageUrl' with the actual field name in your Client model
+        image_url: true, // Replace 'imageUrl' with the actual field name in your Client model
       },
     });
 
@@ -328,18 +180,19 @@ export async function fetchFilteredClients(query: string, currentPage: number) {
   }
 }
 
-export async function fetchClientes() {
+export async function fetchClients() {
   noStore();
   try {
-    const data = await sql<ClientsField>`
-      SELECT
-        id,
-        name
-      FROM clients
-      ORDER BY name ASC
-    `;
+    const clients = await prisma.clients.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
 
-    const clients = data.rows;
     return clients;
   } catch (err) {
     console.error('Database Error:', err);
@@ -348,7 +201,7 @@ export async function fetchClientes() {
 }
 
 //Orcamentos
-export async function fetchFilteredBudgets(
+export async function fetchFilteredQuotes(
   query: string,
   currentPage: number,
 ) {
@@ -356,19 +209,22 @@ export async function fetchFilteredBudgets(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE; 
 
   try {
-    const budgets = await prisma.quote.findMany({
+    const quotes = await prisma.quotes.findMany({
       select: {
         id: true,
         ref_id: true,
         client_id: true,
         name: true,
         status: true, 
+        Client: { 
+          select: { name: true, image_url: true } 
+        }
       },
       where: {
-                      name: {
-              contains: query,
-                  }
-                 },
+        name: {
+          contains: query,
+        }
+      },
       orderBy: {
         ref_id: 'desc'
       },
@@ -376,70 +232,52 @@ export async function fetchFilteredBudgets(
       skip: offset
     });
 
-    return budgets;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch budgets.');
-  }
-}
-
-export async function fetchBudgetById(id: string) {
-  noStore();
-  try {
-    const data = await sql<BudgetsTableView>`
-      SELECT
-        budgets.id,
-        budgets.ref_id,
-        budgets.name
-      FROM budgets
-      WHERE budgets.id = ${id};
-    `;
-
-    const budget = data.rows.map((budget) => ({
-      ...budget,
+    return quotes.map(quote => ({
+      ...quote,
+      client_name: quote.Client?.name, // Adds client name to each quote
+      client_url: quote.Client?.image_url // Adds client name to each quote
     }));
-
-    return budget[0];
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch budget.');
+    throw new Error('Failed to fetch quotes.');
   }
 }
 
-//fetch pages (generalize this functions)
-export async function fetchInvoicesPages(query: string) {
+export async function fetchQuoteById(id: number) {
   noStore();
   try {
-    const count = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
-    WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
-  `;
+    const quote = await prisma.quotes.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        id: true,
+        ref_id: true,
+        name: true,
+      },
+    });
 
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
-    return totalPages;
+    return quote;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of invoices.');
+    throw new Error('Failed to fetch quote.');
   }
 }
 
 export async function fetchProjectsPages(query: string) {
   noStore();
   try {
-    const count = await sql`SELECT COUNT(*)
-    FROM projects
-    JOIN budgets ON projects.id = budgets.id
-    WHERE
-      budgets.name ILIKE ${`%${query}%`}
-  `;
+    const count = await prisma.projects.count({
+      where: {
+   
+          name: {
+            contains: query,
+          },
+  
+      },
+    });
 
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
@@ -447,10 +285,10 @@ export async function fetchProjectsPages(query: string) {
   }
 }
 
-export async function fetchBudgetsPages(query: string) {
+export async function fetchQuotesPages(query: string) {
   noStore();
   try {
-    const count = await prisma.quote.count({
+    const count = await prisma.quotes.count({
       where: 
       
           {
@@ -473,7 +311,7 @@ export async function fetchBudgetsPages(query: string) {
 export async function fetchClientsPages(query: string) {
   noStore();
   try {
-    const count = await prisma.client.count({
+    const count = await prisma.clients.count({
       where: {
         OR: [
           {
@@ -501,7 +339,7 @@ export async function fetchClientsPages(query: string) {
 export async function fetchMaterials() {
   noStore();
   try {
-    const materiais = await prisma.material.findMany({
+    const materiais = await prisma.materials.findMany({
       orderBy: {
         id: 'asc',
       },

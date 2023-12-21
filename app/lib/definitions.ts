@@ -9,7 +9,7 @@ export type User = {
   password: string;
 };
 
-export type Customer = {
+export type Client = {
   id: string;
   name: string;
   email: string;
@@ -88,7 +88,7 @@ export type MaterialsField = {
 };
 
 export type ClientsField = {
-  id: string;
+  id: number;
   name: string;
 };
 

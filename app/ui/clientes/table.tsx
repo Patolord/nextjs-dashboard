@@ -34,7 +34,7 @@ export default async function ClientsTable({
                       />
                       {client.name}
                     </div>
-                    <p className="text-sm text-gray-500">{client.email}</p>
+                    <p className="text-sm text-gray-500">{client.cnpj}</p>
                   </div>
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
@@ -54,7 +54,7 @@ export default async function ClientsTable({
                   Construtoras
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Email
+                  CNPJ
                 </th>
 
                 <th scope="col" className="relative py-3 pl-2 pr-3">
@@ -82,7 +82,7 @@ export default async function ClientsTable({
                   </td>
 
                   <td className="whitespace-nowrap px-3 py-3">
-                    <p>{client.email}</p>
+                  <p>{`${client.cnpj.toString().slice(0, 2)}.${client.cnpj.toString().slice(2, 5)}.${client.cnpj.toString().slice(5, 8)}/${client.cnpj.toString().slice(8, 12)}-${client.cnpj.toString().slice(12)}`}</p>
                   </td>
 
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">

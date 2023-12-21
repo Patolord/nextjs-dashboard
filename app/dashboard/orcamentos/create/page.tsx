@@ -1,13 +1,13 @@
 import Form from '@/app/ui/orcamentos/create-form';
 
-import { fetchClientes } from '@/app/lib/data';
+import { fetchClients } from '@/app/lib/data';
  
 export default async function Page() {
-  const clientes = await fetchClientes();
+  const clients = await fetchClients();
  
   return (
     <main>     
-      <Form customers={clientes} />
+      <Form clients={clients} />
     </main>
   );
 }
