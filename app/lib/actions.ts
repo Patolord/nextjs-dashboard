@@ -21,7 +21,7 @@ export type State = {
 
 export type State2 = {
   errors?: {
-    client_id?: number[];
+    client_id?: string[];
     estimated_cost?: string[];
     status?: string[];
   };
@@ -168,11 +168,10 @@ export async function createQuote(prevState: State2, formData: FormData) {
     estimated_cost: Number(formData.get('estimated_cost')),
   });
 
-  console.log(validatedFields.success); // Check if the parsing was successful
-  console.log(validatedFields.error); // Check the error object for more details
-
   if (!validatedFields.success) {
+    console.log(validatedFields.error); // Check the error object for more details
     return {
+      
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Missing Fields. Failed to Create Invoice.',
     };

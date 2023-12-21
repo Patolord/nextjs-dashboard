@@ -44,7 +44,7 @@ export default function Form({ clients }: { clients: ClientsField[] }) {
           </div>
           <div id="customer-error" aria-live="polite" aria-atomic="true">
             {state.errors?.client_id &&
-              state.errors.client_id?.map((error: number) => (
+              state.errors.client_id?.map((error: string) => (
                 <p className="mt-2 text-sm text-red-500" key={error}>
                   {error} 
                 </p>
