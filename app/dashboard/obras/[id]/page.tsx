@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: 'Ver Obra',
 };
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({ params }: { params: { id: number } }) {
   const id = params.id;
   const [project] = await Promise.all([fetchProjectById(id)]);
 
