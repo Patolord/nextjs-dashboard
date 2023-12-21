@@ -356,26 +356,27 @@ export async function fetchFilteredBudgets(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE; 
 
   try {
-    const budgets = await sql<BudgetsTableView>`
-      SELECT
-        budgets.id,
-        budgets.ref_id,
-        budgets.client_id,
-        budgets.name,
-        budgets.status,
-        clients.name AS client_name,
-        clients.image_url
-      FROM budgets
-      JOIN clients ON budgets.id = clients.id
-      WHERE
-        clients.name ILIKE ${`%${query}%`} OR
-        budgets.name::text ILIKE ${`%${query}%`} OR      
-        budgets.ref_id::text ILIKE ${`%${query}%`}
-      ORDER BY budgets.ref_id DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
+    const budgets = await prisma.quote.findMany({
+      select: {
+        id: true,
+        ref_id: true,
+        client_id: true,
+        name: true,
+        status: true, 
+      },
+      where: {
+                      name: {
+              contains: query,
+                  }
+                 },
+      orderBy: {
+        ref_id: 'desc'
+      },
+      take: ITEMS_PER_PAGE,
+      skip: offset
+    });
 
-    return budgets.rows;
+    return budgets;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch budgets.');
@@ -449,15 +450,19 @@ export async function fetchProjectsPages(query: string) {
 export async function fetchBudgetsPages(query: string) {
   noStore();
   try {
-    const count = await sql`SELECT COUNT(*)
-    FROM budgets
-    JOIN clients ON budgets.id = clients.id
-    WHERE
-      budgets.ref_id ILIKE ${`%${query}%`} OR  
-      clients.name::text ILIKE ${`%${query}%`}
-  `;
+    const count = await prisma.quote.count({
+      where: 
+      
+          {
+            name: {
+              contains: query,
+            },
+          },
+      
+      
+    });
 
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
     return totalPages;
   } catch (error) {
     console.error('Database Error:', error);
