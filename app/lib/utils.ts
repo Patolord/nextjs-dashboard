@@ -1,7 +1,7 @@
 import { Revenue } from './definitions';
 
 export const formatCurrency = (amount: number) => {
-  return (amount / 100).toLocaleString('pt-BR', {
+  return (amount).toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   });

@@ -8,7 +8,7 @@ export default function NotFound() {
       <h2 className="text-xl font-semibold">404 Não Encontrado</h2>
       <p>Obra não existe.</p>
       <Link
-        href="/dashboard/obras"
+        href="/dashboard/orcamentos"
         className="mt-4 rounded-md bg-blue-500 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-400"
       >
         Voltar

@@ -46,7 +46,7 @@ export default async function QuotesTable({
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div className="flex justify-end gap-2">
-                    <Link href={`/dashboard/obras/${quote.id}`}>
+                    <Link href={`/dashboard/orcamentos/${quote.id}`}>
                       <FolderOpenIcon className="w-6" />
                     </Link>
                   </div>
@@ -108,7 +108,7 @@ export default async function QuotesTable({
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <Link href={`/dashboard/obras/${quote.id}`}>
+                      <Link href={`/dashboard/orcamentos/${quote.id}`}>
                         <FolderOpenIcon className="w-6" />
                       </Link>
                     </div>
