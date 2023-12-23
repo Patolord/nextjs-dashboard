@@ -262,8 +262,14 @@ export async function fetchQuoteById(id: number) {
                 name: true,
               },
             },
+            Price: {
+              select: {
+                price: true,
+              },
+            },
           },
         },
+        
       },
     });
 

@@ -27,24 +27,29 @@ export default async function Page({ params }: { params: { id: string } }) {
   const estimated_cost_formatted = formatCurrency(quote.estimated_cost);
 
   return (
-    <main>
-      {quote.name} | ID: {quote.id} | Nº Orçamento: {quote.ref_id}
-      <div>
-        <p>{estimated_cost_formatted}</p>
-        <p>{formattedStartDate}</p>
-        <p>{quote.status}</p>
-        <QuoteMaterials quote={quote as any} />
-        <div className="flex items-center gap-3">
-          <Image
-            src={quote.Client.image_url}
-            className="rounded-full"
-            width={28}
-            height={28}
-            alt={`${quote.Client.name} 's profile picture`}
-          />
-          <p>{quote.Client.name}</p>
+<main className="bg-white shadow-md rounded-lg p-6">
+
+    <h1 className="text-xl font-semibold text-gray-800">{quote.name} | Nº Orçamento: {quote.ref_id}</h1>
+    <div className="flex items-center gap-3 mt-4">
+            <Image
+                src={quote.Client.image_url}
+                className="rounded-full"
+                width={28}
+                height={28}
+                alt={`${quote.Client.name} 's profile picture`}
+            />
+            <p className="font-medium text-gray-800">{quote.Client.name}</p>
         </div>
-      </div>
-    </main>
+    <div className="mt-4">
+        <p className="text-gray-700 font-medium">{estimated_cost_formatted}</p>
+        <p className="text-gray-600">{formattedStartDate}</p>
+        <p className="text-blue-500">{quote.status}</p>
+        <div className="mt-4">
+            <QuoteMaterials quote={quote as any} />
+        </div>
+        
+    </div>
+</main>
+
   );
 }
