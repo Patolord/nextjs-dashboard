@@ -1,21 +1,19 @@
-import {User,} from './definitions';
+import { User } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
 
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-async function main() {
-}
+async function main() {}
 
 main()
-  .catch(e => {
+  .catch((e) => {
     throw e;
   })
   .finally(async () => {
     await prisma.$disconnect();
   });
-
 
 /*
 export async function fetchCardData() {
@@ -59,8 +57,8 @@ export async function getUser(email: string) {
   try {
     const user = await prisma.users.findFirst({
       where: {
-        email: email
-      }
+        email: email,
+      },
     });
     return user as User;
   } catch (error) {
@@ -70,7 +68,10 @@ export async function getUser(email: string) {
 }
 
 //Obras
-export async function fetchFilteredProjects(query: string, currentPage: number) {
+export async function fetchFilteredProjects(
+  query: string,
+  currentPage: number,
+) {
   noStore();
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
@@ -83,26 +84,26 @@ export async function fetchFilteredProjects(query: string, currentPage: number) 
         start_date: true,
         end_date: true,
         status: true,
-        Client: { 
-          select: { name: true, image_url: true } 
-        }
+        Client: {
+          select: { name: true, image_url: true },
+        },
       },
-      where: {  
-            name: {
-              contains: query
-            }
-          },
+      where: {
+        name: {
+          contains: query,
+        },
+      },
       orderBy: {
-        ref_id: 'desc'
+        ref_id: 'desc',
       },
       take: ITEMS_PER_PAGE,
-      skip: offset
+      skip: offset,
     });
 
-    return projects.map(project => ({
+    return projects.map((project) => ({
       ...project,
       client_name: project.Client?.name, // Adds client name to each quote
-      image_url: project.Client?.image_url // Adds client name to each quote
+      image_url: project.Client?.image_url, // Adds client name to each quote
     }));
   } catch (error) {
     console.error('Database Error:', error);
@@ -195,12 +196,9 @@ export async function fetchClients() {
 }
 
 //Orcamentos
-export async function fetchFilteredQuotes(
-  query: string,
-  currentPage: number,
-) {
+export async function fetchFilteredQuotes(query: string, currentPage: number) {
   noStore();
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE; 
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
     const quotes = await prisma.quotes.findMany({
@@ -209,27 +207,27 @@ export async function fetchFilteredQuotes(
         ref_id: true,
         client_id: true,
         name: true,
-        status: true, 
-        Client: { 
-          select: { name: true, image_url: true } 
-        }
+        status: true,
+        Client: {
+          select: { name: true, image_url: true },
+        },
       },
       where: {
         name: {
           contains: query,
-        }
+        },
       },
       orderBy: {
-        ref_id: 'desc'
+        ref_id: 'desc',
       },
       take: ITEMS_PER_PAGE,
-      skip: offset
+      skip: offset,
     });
 
-    return quotes.map(quote => ({
+    return quotes.map((quote) => ({
       ...quote,
       client_name: quote.Client?.name, // Adds client name to each quote
-      client_url: quote.Client?.image_url // Adds client name to each quote
+      client_url: quote.Client?.image_url, // Adds client name to each quote
     }));
   } catch (error) {
     console.error('Database Error:', error);
@@ -248,6 +246,24 @@ export async function fetchQuoteById(id: number) {
         id: true,
         ref_id: true,
         name: true,
+        estimated_cost: true,
+        Client: {
+          select: { name: true, image_url: true },
+        },
+        start_date: true,
+        status: true,
+        quote_materials: {
+          select: {
+            material_id: true,
+            quantity: true,
+            price_id: true,
+            Material: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -263,11 +279,9 @@ export async function fetchProjectsPages(query: string) {
   try {
     const count = await prisma.projects.count({
       where: {
-   
-          name: {
-            contains: query,
-          },
-  
+        name: {
+          contains: query,
+        },
       },
     });
 
@@ -283,15 +297,11 @@ export async function fetchQuotesPages(query: string) {
   noStore();
   try {
     const count = await prisma.quotes.count({
-      where: 
-      
-          {
-            name: {
-              contains: query,
-            },
-          },
-      
-      
+      where: {
+        name: {
+          contains: query,
+        },
+      },
     });
 
     const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
@@ -310,12 +320,12 @@ export async function fetchClientsPages(query: string) {
         OR: [
           {
             name: {
-              contains: query,         
+              contains: query,
             },
           },
           {
             cnpj: {
-              contains: query,       
+              contains: query,
             },
           },
         ],
@@ -344,4 +354,3 @@ export async function fetchMaterials() {
     throw new Error('Failed to fetch all materiais.');
   }
 }
-

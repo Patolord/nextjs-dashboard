@@ -179,3 +179,20 @@ export type BudgetMaterialsTable = {
   cost: number;
 };
 
+
+type Material = {
+  material_id: number;
+  quantity: number;
+  price_id: number;
+  Material: {
+    name: string;
+  };
+};
+
+type Quote = {
+  quote_materials: Material[];
+};
+
+export type QuoteMaterialsProps = {
+  quote: Quote;
+};
