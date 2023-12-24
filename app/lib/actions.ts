@@ -60,11 +60,23 @@ const QuoteFormSchema = z.object({
 
 const ClientFormSchema = z.object({
   id: z.number(),
-  name: z.string({
-    invalid_type_error: 'Please select a name...',
+  name: z.string().min(1, {
+    message: 'Please select a name...',
   }), 
-  cnpj: z.string({
-    invalid_type_error: 'Please select cnpj',
+  cnpj: z.string().refine((value) => {
+    const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
+    return cnpjRegex.test(value);
+  }, {
+    message: 'Please enter a valid CNPJ.',
+  }).refine(async (value) => {
+    const existingClient = await prisma.clients.findFirst({
+      where: {
+        cnpj: value,
+      },
+    });
+    return !existingClient;
+  }, {
+    message: 'CNPJ must be unique.',
   }),  
 });
 
@@ -258,22 +270,16 @@ export async function createMaterialQuote(prevState: State2, formData: FormData)
 
 export async function createClient(prevState: ClientState, formData: FormData) {
   
-  const validatedFields = CreateClient.safeParse({
+  try{
+  const validatedFields = await CreateClient.parseAsync({
     name: formData.get('name'),
     cnpj: formData.get('cnpj'),
   
   });
 
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Create Invoice.',
-    };
-  }
-  const { name, cnpj } = validatedFields.data;
+  const { name, cnpj } = validatedFields;
   let image_url = '/clients/default.png';  
 
-  try {
     await prisma.clients.create({
       data: {
         name: name,
@@ -282,8 +288,11 @@ export async function createClient(prevState: ClientState, formData: FormData) {
       },
     });
   } catch (error) {
-
-    return { message: 'Database Error: Failed to Create Cliente.' };
+    console.error(error);
+    return {
+      errors: error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.',
+    };
   }
   revalidatePath('/dashboard/clientes');
   redirect('/dashboard/clientes');
