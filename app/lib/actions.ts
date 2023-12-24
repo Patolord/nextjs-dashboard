@@ -28,6 +28,14 @@ export type State2 = {
   message?: string | null;
 };
 
+export type ClientState = {
+  errors?: {
+    name?: string[];
+    cnpj?: string[];
+  };
+  message?: string | null;
+};
+
 const FormSchema = z.object({
   id: z.string(),
   customerId: z.string(),
@@ -51,8 +59,20 @@ const QuoteFormSchema = z.object({
   }), 
 });
 
+const ClientFormSchema = z.object({
+  id: z.number(),
+  name: z.string({
+    invalid_type_error: 'Please select a name...',
+  }), 
+  cnpj: z.string({
+    invalid_type_error: 'Please select cnpj',
+  }),  
+});
+
+
 
 const CreateQuote = QuoteFormSchema.omit({ id: true, date: true });
+const CreateClient = ClientFormSchema.omit({ id: true});
 
 /*
 export async function createInvoice(prevState: State, formData: FormData) {
@@ -235,4 +255,37 @@ export async function createMaterialQuote(prevState: State2, formData: FormData)
   }
   revalidatePath('/dashboard/orcamentos');
   redirect('/dashboard/orcamentos');
+}
+
+export async function createClient(prevState: ClientState, formData: FormData) {
+  
+  const validatedFields = CreateClient.safeParse({
+    name: formData.get('name'),
+    cnpj: formData.get('cnpj'),
+  
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.',
+    };
+  }
+  const { name, cnpj } = validatedFields.data;
+  let image_url = '/clients/default.png';  
+
+  try {
+    await prisma.clients.create({
+      data: {
+        name: name,
+        cnpj: cnpj,
+        image_url: image_url,
+      },
+    });
+  } catch (error) {
+
+    return { message: 'Database Error: Failed to Create Cliente.' };
+  }
+  revalidatePath('/dashboard/clientes');
+  redirect('/dashboard/clientes');
 }
