@@ -7,8 +7,7 @@ import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import prisma from './db';
 
 export type State = {
   errors?: {
