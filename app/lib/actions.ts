@@ -197,3 +197,42 @@ export async function createQuote(prevState: State2, formData: FormData) {
   revalidatePath('/dashboard/orcamentos');
   redirect('/dashboard/orcamentos');
 }
+
+//
+export async function createMaterialQuote(prevState: State2, formData: FormData) {
+  const validatedFields = CreateQuote.safeParse({
+    client_id: Number(formData.get('client_id')),
+    ref_id: formData.get('ref_id'),
+    name: formData.get('name'),
+    estimated_cost: Number(formData.get('estimated_cost')),
+  });
+
+  if (!validatedFields.success) {
+    console.log(validatedFields.error); // Check the error object for more details
+    return {
+      
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.',
+    };
+  }
+  const { client_id, ref_id, name, estimated_cost } = validatedFields.data; 
+  const date = new Date().toISOString()
+  const status = 'Em Andamento';
+
+  try {
+    await prisma.quotes.create({
+      data: {
+        client_id: client_id,
+        ref_id: ref_id,
+        name: name,
+        start_date: date,
+        status: status,
+        estimated_cost: estimated_cost
+      }
+    });
+  } catch (error) {
+    return { message: 'Database Error: Failed to Create Orcamento.' };
+  }
+  revalidatePath('/dashboard/orcamentos');
+  redirect('/dashboard/orcamentos');
+}
