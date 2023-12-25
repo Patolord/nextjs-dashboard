@@ -1,13 +1,12 @@
 'use server';
 
 import { z } from 'zod';
-import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 
-import prisma from './db';
+import { prisma } from './db';
 
 export type State = {
   errors?: {
@@ -287,10 +286,10 @@ export async function createClient(prevState: ClientState, formData: FormData) {
         image_url: image_url,
       },
     });
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+
     return {
-      errors: error.flatten().fieldErrors,
+      errors: error.flatten().fieldErrors,      
       message: 'Missing Fields. Failed to Create Invoice.',
     };
   }

@@ -4,6 +4,7 @@ import { ClientsField } from '@/app/lib/definitions';
 import Link from 'next/link';
 import {
   CurrencyDollarIcon,
+  ExclamationCircleIcon,
   NewspaperIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/outline';
@@ -12,7 +13,7 @@ import { createClient } from '@/app/lib/actions';
 import { useFormState } from 'react-dom';
 
 export default function Form() {
-  const initialState = { message: null, errors: {} };
+  const initialState = { message: null, errors: null };
   const [state, dispatch] = useFormState(createClient, initialState);
   
   return (
@@ -27,6 +28,7 @@ export default function Form() {
             <div className="relative">
               <input
                 id="name"
+                required
                 name="name"
                 type="string"            
                 placeholder="Insira o nome do cliente"
@@ -34,6 +36,12 @@ export default function Form() {
               />
               <NewspaperIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
+            {state.errors?.name && (
+            <div className="flex h-8 items-end space-x-1">
+              <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+              <p className="text-sm text-red-500">{state.errors.name}</p>   
+            </div>
+          )}
           </div>
         </div>
 
@@ -47,12 +55,19 @@ export default function Form() {
               <input
                 id="cnpj"
                 name="cnpj"
+                required
                 type="string"            
                 placeholder="Insira cnpj"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               />
               <NewspaperIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
+            {state.errors?.cnpj && (
+            <div className="flex h-8 items-end space-x-1">
+              <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
+              <p className="text-sm text-red-500">{state.errors.cnpj}</p>   
+            </div>
+          )}
           </div>
         </div>
            
@@ -65,7 +80,11 @@ export default function Form() {
           Cancelar
         </Link>
         <Button type="submit">Criar Cliente</Button>
+
+        
       </div>
+
+   
     </form>
   );
 }
