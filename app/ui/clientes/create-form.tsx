@@ -14,7 +14,7 @@ import { useFormState } from 'react-dom';
 import { ChangeEvent, useState } from 'react';
 
 export default function Form() {
-  const initialState = { message: null, errors: null };
+  const initialState = { message: null, errors: { name: undefined, cnpj: undefined } };
   const [state, dispatch] = useFormState(createClient, initialState);
   const [cnpj, setCnpj] = useState<string>('');
 
