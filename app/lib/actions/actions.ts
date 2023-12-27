@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 
-import { prisma } from './db';
+import { prisma } from '../db';
 
 export type State = {
   errors?: {
@@ -26,13 +26,6 @@ export type State2 = {
   message?: string | null;
 };
 
-export type ClientState = {
-  errors?: {
-    name?: string[];
-    cnpj?: string[];
-  };
-  message?: string | null;
-};
 
 const FormSchema = z.object({
   id: z.string(),
@@ -57,32 +50,9 @@ const QuoteFormSchema = z.object({
   }), 
 });
 
-const ClientFormSchema = z.object({
-  id: z.number(),
-  name: z.string().min(1, {
-    message: 'Please select a name...',
-  }), 
-  cnpj: z.string().refine((value) => {
-    const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
-    return cnpjRegex.test(value);
-  }, {
-    message: 'Please enter a valid CNPJ.',
-  }).refine(async (value) => {
-    const existingClient = await prisma.clients.findFirst({
-      where: {
-        cnpj: value,
-      },
-    });
-    return !existingClient;
-  }, {
-    message: 'CNPJ must be unique.',
-  }),  
-});
-
 
 
 const CreateQuote = QuoteFormSchema.omit({ id: true, date: true });
-const CreateClient = ClientFormSchema.omit({ id: true});
 
 /*
 export async function createInvoice(prevState: State, formData: FormData) {
@@ -265,34 +235,4 @@ export async function createMaterialQuote(prevState: State2, formData: FormData)
   }
   revalidatePath('/dashboard/orcamentos');
   redirect('/dashboard/orcamentos');
-}
-
-export async function createClient(prevState: ClientState, formData: FormData) {
-  
-  try{
-  const validatedFields = await CreateClient.parseAsync({
-    name: formData.get('name'),
-    cnpj: formData.get('cnpj'),
-  
-  });
-
-  const { name, cnpj } = validatedFields;
-  let image_url = '/clients/default.png';  
-
-    await prisma.clients.create({
-      data: {
-        name: name,
-        cnpj: cnpj,
-        image_url: image_url,
-      },
-    });
-  } catch (error: any) {
-
-    return {
-      errors: error.flatten().fieldErrors,      
-      message: 'Missing Fields. Failed to Create Invoice.',
-    };
-  }
-  revalidatePath('/dashboard/clientes');
-  redirect('/dashboard/clientes');
 }

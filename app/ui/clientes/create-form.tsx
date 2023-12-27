@@ -1,21 +1,46 @@
 'use client';
 
-import { ClientsField } from '@/app/lib/definitions';
 import Link from 'next/link';
 import {
-  CurrencyDollarIcon,
-  ExclamationCircleIcon,
-  NewspaperIcon,
-  UserCircleIcon,
+
+  IdentificationIcon,
+  
+  BuildingOfficeIcon,
+
 } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
-import { createClient } from '@/app/lib/actions';
+import { createClient } from '@/app/lib/actions/add-customer-action';
 import { useFormState } from 'react-dom';
+import { ChangeEvent, useState } from 'react';
 
 export default function Form() {
   const initialState = { message: null, errors: null };
   const [state, dispatch] = useFormState(createClient, initialState);
-  
+  const [cnpj, setCnpj] = useState<string>('');
+
+
+
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let formattedInput = event.target.value.replace(/\D/g, ""); // remove non-digits
+
+
+    // existing formatting logic
+    if (formattedInput.length <= 2) {
+      formattedInput = formattedInput;
+    } else if (formattedInput.length <= 5) {
+      formattedInput = `${formattedInput.slice(0, 2)}.${formattedInput.slice(2)}`;
+    } else if (formattedInput.length <= 8) {
+      formattedInput = `${formattedInput.slice(0, 2)}.${formattedInput.slice(2, 5)}.${formattedInput.slice(5)}`;
+    } else if (formattedInput.length <= 12) {
+      formattedInput = `${formattedInput.slice(0, 2)}.${formattedInput.slice(2, 5)}.${formattedInput.slice(5, 8)}/${formattedInput.slice(8)}`;
+    } else if (formattedInput.length > 12) {
+      formattedInput = `${formattedInput.slice(0, 2)}.${formattedInput.slice(2, 5)}.${formattedInput.slice(5, 8)}/${formattedInput.slice(8, 12)}-${formattedInput.slice(12, 14)}`;
+    }
+
+    setCnpj(formattedInput);
+  };
+    
   return (
     <form action={dispatch}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">        
@@ -34,14 +59,16 @@ export default function Form() {
                 placeholder="Insira o nome do cliente"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               />
-              <NewspaperIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <IdentificationIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
-            {state.errors?.name && (
-            <div className="flex h-8 items-end space-x-1">
-              <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-              <p className="text-sm text-red-500">{state.errors.name}</p>   
-            </div>
-          )}
+            <div id="customer-error" aria-live="polite" aria-atomic="true">
+        {state.errors?.name &&
+          state.errors.name.map((error: string) => (
+            <p className="mt-2 text-sm text-red-500" key={error}>
+              {error}
+            </p>
+          ))}
+      </div>
           </div>
         </div>
 
@@ -56,18 +83,20 @@ export default function Form() {
                 id="cnpj"
                 name="cnpj"
                 required
-                type="string"            
+                type="string"  
+                value={cnpj}
+                onChange={handleInputChange}          
                 placeholder="Insira cnpj"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               />
-              <NewspaperIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <BuildingOfficeIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
-            {state.errors?.cnpj && (
-            <div className="flex h-8 items-end space-x-1">
-              <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
-              <p className="text-sm text-red-500">{state.errors.cnpj}</p>   
-            </div>
-          )}
+            {state.errors?.cnpj &&
+          state.errors.cnpj.map((error: string) => (
+            <p className="mt-2 text-sm text-red-500" key={error}>
+              {error}
+            </p>
+          ))}
           </div>
         </div>
            

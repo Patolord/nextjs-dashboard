@@ -8,7 +8,7 @@ import {
   UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
-import { createQuote } from '@/app/lib/actions';
+import { createQuote } from '@/app/lib/actions/actions';
 import { useFormState } from 'react-dom';
 
 export default function Form({ clients }: { clients: ClientsField[] }) {
