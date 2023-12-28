@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import { QuoteMaterials } from '@/app/ui/orcamentos/details/orcamentosmateriais';
 import { formatCurrency } from '@/app/lib/utils';
-import { CreateQuote } from '@/app/ui/orcamentos/buttons';
+import { AddMaterial } from '@/app/ui/orcamentos/details/buttons';
 
 export const metadata: Metadata = {
   title: 'Ver Orçamento',
@@ -52,7 +52,7 @@ export default async function Page({ params }: { params: { id: string } }) {
         <div className="mt-4">
           <QuoteMaterials quote={quote as any} />
         </div>
-        <CreateQuote />
+        <AddMaterial />
       </div>
     </main>
   );
