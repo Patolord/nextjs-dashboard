@@ -291,3 +291,17 @@ export async function updateCustomer(
   revalidatePath('/dashboard/clientes');
   redirect('/dashboard/clientes');
 }
+
+export async function deleteCustomer(id: number) {
+  // throw new Error('Failed to Delete Customer');
+
+  try {
+    await prisma.clients.delete({
+      where: { id },
+    });
+    revalidatePath('/dashboard/clientes');
+    return { message: 'Deleted Customer' };
+  } catch (error) {
+    return { message: 'Database Error: Failed to Delete Customer.' };
+  }
+}

@@ -103,7 +103,6 @@ export default function EditCustomerForm({customer}: {customer: CustomerType}) {
                 name="cnpj"
                 required
                 type="string"
-                value={cnpj}
                 onChange={handleInputChange}
                 defaultValue={customer.cnpj}
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"

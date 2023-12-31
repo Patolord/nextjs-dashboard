@@ -1,7 +1,9 @@
 import Image from 'next/image';
 import { fetchFilteredClients } from '@/app/lib/data';
 import Link from 'next/link';
-import { Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { Cog6ToothIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { UpdateCustomer, DeleteCustomer } from './buttons';
+
 
 export default async function ClientsTable({
   query,
@@ -87,9 +89,8 @@ export default async function ClientsTable({
 
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <Link href={`/dashboard/clientes/${client.id}/edit`}>
-                        <Cog6ToothIcon className="w-6" />
-                      </Link>
+                      <UpdateCustomer id={client.id} />
+                      <DeleteCustomer id={client.id} />
                     </div>
                   </td>
                 </tr>
