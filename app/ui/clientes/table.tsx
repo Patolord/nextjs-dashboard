@@ -39,7 +39,7 @@ export default async function ClientsTable({
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div className="flex justify-end gap-2">
-                    <Link href={`/dashboard/obras/${client.id}`}>
+                  <Link href={`/dashboard/clientes/${client.id}/edit`}>
                       <Cog6ToothIcon className="w-6" />
                     </Link>
                   </div>
@@ -87,7 +87,7 @@ export default async function ClientsTable({
 
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <Link href={`/dashboard/obras/${client.id}`}>
+                      <Link href={`/dashboard/clientes/${client.id}/edit`}>
                         <Cog6ToothIcon className="w-6" />
                       </Link>
                     </div>

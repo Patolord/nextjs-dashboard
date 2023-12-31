@@ -279,6 +279,28 @@ export async function fetchQuoteById(id: number) {
   }
 }
 
+export async function fetchCustomerById(id: number) {
+  noStore();
+  try {
+    const customer = await prisma.clients.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        id: true,
+        name: true,
+        cnpj: true,
+      
+        },
+    });
+
+    return customer;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch client.');
+  }
+}
+
 export async function fetchProjectsPages(query: string) {
   noStore();
   try {

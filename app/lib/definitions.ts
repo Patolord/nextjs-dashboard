@@ -196,3 +196,9 @@ type Quote = {
 export type QuoteMaterialsProps = {
   quote: Quote;
 };
+
+export type CustomerType = {
+  id: number;
+  name: string;
+  cnpj: string;
+};

@@ -5,7 +5,6 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
-
 import { prisma } from '../db';
 
 export type State = {
@@ -26,6 +25,14 @@ export type State2 = {
   message?: string | null;
 };
 
+export type Customer = {
+  errors?: {
+    client_id?: string[];
+    name?: string[];
+    cnpj?: string[];
+  };
+  message?: string | null;
+};
 
 const FormSchema = z.object({
   id: z.string(),
@@ -50,9 +57,19 @@ const QuoteFormSchema = z.object({
   }), 
 });
 
+const CustomerFormSchema = z.object({
+  id: z.number(),
+  name: z.string({
+    invalid_type_error: 'Please select a name...',
+  }),
+  cnpj: z.string()
+
+});
+
 
 
 const CreateQuote = QuoteFormSchema.omit({ id: true, date: true });
+const UpdateCustomer = CustomerFormSchema.omit({ id: true });
 
 /*
 export async function createInvoice(prevState: State, formData: FormData) {
@@ -126,6 +143,8 @@ export async function updateInvoice(
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
 }
+
+
 
 export async function deleteInvoice(id: string) {
   try {
@@ -235,4 +254,40 @@ export async function createMaterialQuote(prevState: State2, formData: FormData)
   }
   revalidatePath('/dashboard/orcamentos');
   redirect('/dashboard/orcamentos');
+}
+
+export async function updateCustomer(
+  id: number,
+  prevState: Customer,
+  formData: FormData,
+) {
+  const validatedFields = UpdateCustomer.safeParse({
+    name: formData.get('name'),
+    cnpj: formData.get('cnpj'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Update Cliente.',
+    };
+  }
+  const { name, cnpj } = validatedFields.data;
+
+
+  try {
+    await prisma.clients.update({
+      where: { id },
+      data: {
+        id: id,
+        name: name,
+        cnpj: cnpj,
+      },
+    });
+  } catch (error) {
+    return { message: 'Database Error: Failed to Update Customer.' };
+  }
+
+  revalidatePath('/dashboard/clientes');
+  redirect('/dashboard/clientes');
 }
