@@ -41,9 +41,8 @@ export default async function ClientsTable({
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div className="flex justify-end gap-2">
-                  <Link href={`/dashboard/clientes/${client.id}/edit`}>
-                      <Cog6ToothIcon className="w-6" />
-                    </Link>
+                  <UpdateCustomer id={client.id} />
+                  <DeleteCustomer id={client.id} />
                   </div>
                 </div>
               </div>

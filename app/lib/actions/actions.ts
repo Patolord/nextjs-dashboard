@@ -293,15 +293,29 @@ export async function updateCustomer(
 }
 
 export async function deleteCustomer(id: number) {
-  // throw new Error('Failed to Delete Customer');
-
   try {
+    // Check for related quotes, projects, and contracts
+    const relatedQuotes = await prisma.quotes.findMany({
+      where: { client_id: id },
+    });
+    const relatedProjects = await prisma.projects.findMany({
+      where: { client_id: id },
+    });
+    const relatedContracts = await prisma.contracts.findMany({
+      where: { client_id: id },
+    });
+
+    if (relatedQuotes.length > 0 || relatedProjects.length > 0 || relatedContracts.length > 0) {
+      return { message: 'Warning: This customer has related quotes, projects, or contracts. Proceeding with deletion will also delete these related records.' };
+    }
+
+    // If there are no related records, proceed with deletion
     await prisma.clients.delete({
       where: { id },
     });
     revalidatePath('/dashboard/clientes');
     return { message: 'Deleted Customer' };
   } catch (error) {
-    return { message: 'Database Error: Failed to Delete Customer.' };
+    throw new Error('Database Error: Failed to Delete Customer.');
   }
 }
