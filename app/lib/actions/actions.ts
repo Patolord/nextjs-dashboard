@@ -46,7 +46,7 @@ const QuoteFormSchema = z.object({
   id: z.number(),
   client_id: z.number({
     invalid_type_error: 'Please select a customer.',
-  }), 
+  }),
   name: z.string({
     invalid_type_error: 'Please select a name...',
   }),
@@ -54,7 +54,7 @@ const QuoteFormSchema = z.object({
   ref_id: z.string(),
   estimated_cost: z.number({
     invalid_type_error: 'Please select cost',
-  }), 
+  }),
 });
 
 const CustomerFormSchema = z.object({
@@ -62,11 +62,8 @@ const CustomerFormSchema = z.object({
   name: z.string({
     invalid_type_error: 'Please select a name...',
   }),
-  cnpj: z.string()
-
+  cnpj: z.string(),
 });
-
-
 
 const CreateQuote = QuoteFormSchema.omit({ id: true, date: true });
 const UpdateCustomer = CustomerFormSchema.omit({ id: true });
@@ -176,7 +173,6 @@ export async function authenticate(
   }
 }
 
-
 //orcarmento
 
 export async function createQuote(prevState: State2, formData: FormData) {
@@ -190,13 +186,12 @@ export async function createQuote(prevState: State2, formData: FormData) {
   if (!validatedFields.success) {
     console.log(validatedFields.error); // Check the error object for more details
     return {
-      
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Missing Fields. Failed to Create Invoice.',
     };
   }
-  const { client_id, ref_id, name, estimated_cost } = validatedFields.data; 
-  const date = new Date().toISOString()
+  const { client_id, ref_id, name, estimated_cost } = validatedFields.data;
+  const date = new Date().toISOString();
   const status = 'Em Andamento';
 
   try {
@@ -207,8 +202,8 @@ export async function createQuote(prevState: State2, formData: FormData) {
         name: name,
         start_date: date,
         status: status,
-        estimated_cost: estimated_cost
-      }
+        estimated_cost: estimated_cost,
+      },
     });
   } catch (error) {
     return { message: 'Database Error: Failed to Create Orcamento.' };
@@ -218,7 +213,10 @@ export async function createQuote(prevState: State2, formData: FormData) {
 }
 
 //
-export async function createMaterialQuote(prevState: State2, formData: FormData) {
+export async function createMaterialQuote(
+  prevState: State2,
+  formData: FormData,
+) {
   const validatedFields = CreateQuote.safeParse({
     client_id: Number(formData.get('client_id')),
     ref_id: formData.get('ref_id'),
@@ -229,13 +227,12 @@ export async function createMaterialQuote(prevState: State2, formData: FormData)
   if (!validatedFields.success) {
     console.log(validatedFields.error); // Check the error object for more details
     return {
-      
       errors: validatedFields.error.flatten().fieldErrors,
       message: 'Missing Fields. Failed to Create Invoice.',
     };
   }
-  const { client_id, ref_id, name, estimated_cost } = validatedFields.data; 
-  const date = new Date().toISOString()
+  const { client_id, ref_id, name, estimated_cost } = validatedFields.data;
+  const date = new Date().toISOString();
   const status = 'Em Andamento';
 
   try {
@@ -246,8 +243,8 @@ export async function createMaterialQuote(prevState: State2, formData: FormData)
         name: name,
         start_date: date,
         status: status,
-        estimated_cost: estimated_cost
-      }
+        estimated_cost: estimated_cost,
+      },
     });
   } catch (error) {
     return { message: 'Database Error: Failed to Create Orcamento.' };
@@ -274,7 +271,6 @@ export async function updateCustomer(
   }
   const { name, cnpj } = validatedFields.data;
 
-
   try {
     await prisma.clients.update({
       where: { id },
@@ -294,6 +290,7 @@ export async function updateCustomer(
 
 export async function deleteCustomer(id: number) {
   try {
+
     // Check for related quotes, projects, and contracts
     const relatedQuotes = await prisma.quotes.findMany({
       where: { client_id: id },
@@ -305,10 +302,15 @@ export async function deleteCustomer(id: number) {
       where: { client_id: id },
     });
 
-    if (relatedQuotes.length > 0 || relatedProjects.length > 0 || relatedContracts.length > 0) {
-      return { message: 'Warning: This customer has related quotes, projects, or contracts. Proceeding with deletion will also delete these related records.' };
+    if (
+      relatedQuotes.length > 0 ||
+      relatedProjects.length > 0 ||
+      relatedContracts.length > 0
+    ) {
+      return {
+        success: false        
+      };
     }
-
     // If there are no related records, proceed with deletion
     await prisma.clients.delete({
       where: { id },

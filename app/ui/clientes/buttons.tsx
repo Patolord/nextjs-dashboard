@@ -1,8 +1,11 @@
+'use client';
+
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { deleteCustomer } from '@/app/lib/actions/actions';	
+import { deleteCustomer } from '@/app/lib/actions/actions';
 import Link from 'next/link';
-import { useFormState } from 'react-dom';
-import { useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { useState, useTransition } from 'react';
+import {Toaster, toast} from 'sonner'
 
 export function CreateClient() {
   return (
@@ -27,18 +30,40 @@ export function UpdateCustomer({ id }: { id: number }) {
   );
 }
 
-
 export function DeleteCustomer({ id }: { id: number }) {
-  
-  const deleteCustomerWithId = deleteCustomer.bind(null, id);
-  
-  return (
-    <form action={deleteCustomerWithId}>
-      <button className="rounded-md border p-2 hover:bg-gray-100">
-        <span className="sr-only">Delete</span>
-        <TrashIcon className="w-5" />
-      </button>
-    </form>
+  const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = useState<string | null>(null);
 
+ // const deleteCustomerWithId = deleteCustomer.bind(null, id);
+
+  return (<>
+      <button
+        disabled={isPending}
+        onClick={() => startTransition(() => {
+          return deleteCustomer(id).then((response) => {
+            if (response.success === false) {
+              toast.error('Cliente possui Projetos, Orçamentos ou Contratos!')
+              return undefined;
+            }
+            toast.success('Cliente deletado com sucesso!')
+            return undefined;
+          });
+        })}
+        className="rounded-md border p-2 hover:bg-gray-100"
+      >
+        {isPending && (
+          <TrashIcon className="w-5 text-red-500" />
+        )}
+        {!isPending && <span className="sr-only">Delete</span> && (
+          <TrashIcon className="w-5" />
+        )}
+      </button>
+      <div>
+      <Toaster richColors position='top-right' />
+      
+    </div>
+      
+      </>
+  
   );
 }
