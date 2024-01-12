@@ -9,20 +9,19 @@ generator client {
 }
 
 model Clients {
-  id        Int        @id @default(autoincrement()) @unique
+  id        Int         @id @unique @default(autoincrement())
   name      String
-  cnpj      String @unique
-  image_url String @default("/clients/1.png")
+  cnpj      String      @unique
+  image_url String      @default("/clients/1.png")
   quotes    Quotes[]
   projects  Projects[]
   contracts Contracts[]
-
 }
 
 model Quotes {
-  id              Int              @id @default(autoincrement()) @unique
+  id              Int              @id @unique @default(autoincrement())
   client_id       Int
-  ref_id          String @unique
+  ref_id          String           @unique
   name            String
   estimated_cost  Int
   start_date      DateTime
@@ -30,16 +29,13 @@ model Quotes {
   quote_materials Quote_Material[]
   Client          Clients          @relation(fields: [client_id], references: [id])
 
-
-
-
   @@index([client_id])
 }
 
 model Projects {
-  id                Int                @id @default(autoincrement()) @unique
+  id                Int                @id @unique @default(autoincrement())
   client_id         Int
-  ref_id            String @unique
+  ref_id            String             @unique
   name              String
   start_date        DateTime
   end_date          DateTime
@@ -47,29 +43,27 @@ model Projects {
   project_materials Project_Material[]
   Client            Clients            @relation(fields: [client_id], references: [id])
 
-
   @@index([client_id])
 }
 
 model Contracts {
-  id             Int      @id @default(autoincrement()) @unique
+  id             Int      @id @unique @default(autoincrement())
   client_id      Int
   project_id     Int
   quote_id       Int
-  ref_id         String @unique
+  ref_id         String   @unique
   name           String
   contract_value Int
   start_date     DateTime
   end_date       DateTime
   status         String
-  Client         Clients?  @relation(fields: [client_id], references: [id])
-
+  Client         Clients? @relation(fields: [client_id], references: [id])
 
   @@index([client_id])
 }
 
 model Materials {
-  id                Int                @id @default(autoincrement()) @unique
+  id                Int                 @id @unique @default(autoincrement())
   name              String
   description       String
   unit              String
@@ -77,27 +71,27 @@ model Materials {
   prices            Prices[]
   quote_materials   Quote_Material[]
   project_materials Project_Material[]
+  InventoryMovement InventoryMovement[]
 }
 
 model Suppliers {
-  id           Int     @id @default(autoincrement()) @unique
+  id           Int      @id @unique @default(autoincrement())
   name         String
   contact_info String
   prices       Prices[]
 }
 
 model Prices {
-  id                Int                @id @default(autoincrement()) @unique
+  id                Int                @id @unique @default(autoincrement())
   material_id       Int
   supplier_id       Int
   price             Decimal
   effective_date    DateTime
   quote_materials   Quote_Material[]
   project_materials Project_Material[]
-  Material          Materials?          @relation(fields: [material_id], references: [id])
+  Material          Materials?         @relation(fields: [material_id], references: [id])
 
-  Supplier          Suppliers?          @relation(fields: [supplier_id], references: [id])
-
+  Supplier Suppliers? @relation(fields: [supplier_id], references: [id])
 
   @@index([material_id])
   @@index([supplier_id])
@@ -111,7 +105,6 @@ model Quote_Material {
   Quote       Quotes?    @relation(fields: [quote_id], references: [id])
   Material    Materials? @relation(fields: [material_id], references: [id])
   Price       Prices?    @relation(fields: [price_id], references: [id])
-
 
   @@unique([quote_id, material_id])
   @@index([quote_id])
@@ -139,4 +132,31 @@ model Users {
   name     String
   email    String @unique
   password String
+}
+
+model Warehouse {
+  id        Int      @id @default(autoincrement())
+  name      String
+  location  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InventoryMovement {
+  id                      Int        @id @default(autoincrement())
+  material_id             Int // ID of the material
+  orderId                 Int? // ID of the order (nullable)
+  type                    String // e.g., "In", "Out", "Transfer"
+  quantity                Int
+  date                    DateTime   @default(now())
+  sourceWarehouse_id      Int? // ID of the source warehouse (nullable)
+  destinationWarehouse_id Int? // ID of the destination warehouse (nullable)
+  createdAt               DateTime   @default(now())
+  updatedAt               DateTime   @updatedAt
+  Materials               Materials? @relation(fields: [material_id], references: [id])
+
+  @@index([material_id])
+  @@index([sourceWarehouse_id])
+  @@index([destinationWarehouse_id])
+  @@index([orderId])
 }
